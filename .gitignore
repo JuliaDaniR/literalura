@@ -1,8 +1,9 @@
 ### General ###
 HELP.md
 
-### Maven ###
-target/
+# Ignorar el directorio target/ excepto maven-wrapper.jar y los directorios dentro de src/main/ y src/test/
+target/*
+!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
