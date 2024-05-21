@@ -1,4 +1,4 @@
-e# Librería Virtual
+# Librería Virtual
 
 Descripción breve de tu proyecto y su objetivo.
 
