@@ -1,6 +1,7 @@
-# Librería Virtual
+# Literalura
 
 Descripción breve de tu proyecto y su objetivo.
+Este proyecto fue realizado para cumplir con el Challenge de Spring del programa de Alura con Oracle
 
 ## Características
 
