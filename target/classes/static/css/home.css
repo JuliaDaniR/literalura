@@ -1,0 +1,327 @@
+body {
+    background: linear-gradient(180.61deg,
+        #000000 25.16%,
+        #04254f 80%,
+        #409ecd 100%);
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family:"Roboto", sans-serif;
+}
+
+.hidden {
+    display: none;
+}
+
+select,
+option {
+    background-color: black;
+    color: white;
+    font-size: 24px;
+    padding: 0 1em;
+    max-width: 180px;
+}
+
+select {
+    border: none;
+    outline: none;
+}
+
+
+h2 {
+    color: white;
+}
+
+main {
+    padding: 0 3em;
+    height: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+    flex-wrap: wrap;
+}
+
+.header__logo {
+    display: flex;
+    gap: 1em;
+}
+
+.header__logo img {
+    width: 350px;
+    height: 250px;
+    background-color: rgba(173, 187, 199, 0.567);
+    border-radius: 50%;
+}
+.header__logo select{
+    width: 250px;
+    max-height: 50px;
+}
+.header__opciones{
+    display: flex;
+    color: antiquewhite;
+    margin-right: 2rem;
+}
+.header__opciones .container-todo-filtro{
+    margin: 2rem 3rem;
+}
+/* Ocultar el cuadro del checkbox */
+.container-checkbox-filtro input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+.container-checkbox-filtro{
+    display: flex;
+    justify-content: space-between;
+}
+
+.filtrosFormLibro{
+    padding: .5rem;
+    margin:1rem;
+    border-radius: 20px;
+    text-align: center;
+    width: 100%;
+    line-height: 3rem;
+
+}
+
+.container-btn-filtro{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.contain{
+    display: flex;
+    justify-content: space-around;
+}
+
+.container-btn-filtro button:not(.btn-principal){
+    margin-left: 2rem;
+    color: whitesmoke;
+    border-radius: 20px;
+    padding: .2rem .5rem;
+    font-weight: bold;
+    margin-top: 2rem;
+}
+.container-btn-filtro button:not(.btn-principal):hover{
+    background: linear-gradient(90deg, rgba(26,154,175,1) 0%, rgba(148,233,188,1) 100%);
+    color: black;
+}
+
+.container-btn-filtro .btn-principal{
+    padding: .3rem;
+    background: none;
+    color: whitesmoke;
+    border: 1px solid whitesmoke;
+    font-size: 2rem;
+    border-radius: 20px;
+}
+.material-symbols-outlined {
+    color: white;
+    font-size: 48px
+}
+
+.lista {
+    list-style-type: none;
+    margin: 3rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1em;
+}
+
+.lista li img {
+    width: 300px;
+    height: 444px;
+}
+
+.pesquisa {
+
+    min-height: 100vh;
+}
+.lista-autor{
+    list-style-type: none;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 3rem ;
+}
+
+.autor{
+    background: darkslategray;
+    padding: 4rem;
+    border-radius: 50%;
+    margin: 1rem 1rem;
+    box-shadow: 3px 6px 8px rgba(0,0,0,0.5);
+    border: 4px groove lightskyblue;
+    cursor: pointer;
+    text-align: center;
+}
+.autor:hover, .autor h2:hover{
+    background:#0d4645;
+    color: black;
+}
+.autor h2{
+    font-size: 2rem;
+    font-weight: bold;
+    text-shadow: 3px 6px 8px rgba(0,0,0,0.5);
+}
+
+ul.lista-autor li a {
+    text-decoration: none;
+}
+
+.imagen-contenedor {
+    position: relative;
+    display: inline-block; /* Ajusta el tamaño del contenedor según la imagen */
+}
+
+.titulo-overlay {
+    position: absolute;
+    bottom: 0; /* Posición del título en la parte inferior */
+    left: 0; /* Posición del título en la parte izquierda */
+    width: 100%; /* Ancho igual al contenedor */
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente */
+    color: white; /* Color del texto */
+    padding: 1rem; /* Espaciado interno */
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.ficha-descripcion{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    border: 7px groove #0d4645;
+    width: 60%;
+    margin: 3rem auto;
+    padding: 1.5rem;
+    box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -webkit-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+}
+
+.ficha-descripcion img{
+    width: 150%;
+    padding: 2rem;
+    margin-left: 2rem;
+    margin:  0 auto;
+}
+.ficha-descripcion h4{
+    color: #0d4645;
+    font-weight: bold;
+}
+.ficha-descripcion h1{
+    color: whitesmoke;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 7px groove #0d4645;
+    padding-bottom: 2rem;
+}
+
+.formatos-contain{
+    display: flex;
+    justify-content: space-evenly;
+}
+.formatos-contain a{
+    text-decoration: none;
+    border: 7px groove #0d4645;
+    padding: 1.5rem;
+    box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -webkit-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 8rem;
+    color: #62717a;
+}
+
+.mensajeResultado{
+
+    border: 7px groove #0d4645;
+    padding: 1.5rem;
+    box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -webkit-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 8rem;
+    color: #62717a;
+}
+.mensajeResultado a{
+    text-decoration: none;
+    color: black;
+}
+
+@media screen and (max-width: 500px) {
+    h1, h2 {
+        font-size: 1.2rem;
+    }
+    .ficha-descripcion {
+        width: 100%;
+        padding: .5rem;
+    }
+    .ficha-descripcion img {
+        width: 100%;
+    }
+    .lista li img {
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+    .formatos-contain {
+        flex-wrap: wrap;
+    }
+    .formatos-contain a {
+        margin-bottom: 2rem;
+        color: #d5e1e8;
+    }
+    .header__logo {
+        width: 100%;
+    }
+    .header__logo img {
+        width: 250px;
+        height: 150px;
+    }
+    .header {
+        justify-content: center;
+    }
+    .autor {
+        padding: 2rem;
+        margin: 1rem auto;
+    }
+    .lista-autor {
+        margin: 0rem;
+        justify-content: center;
+    }
+    .filtrosFormLibro {
+        padding: .5rem;
+        margin: 2rem;
+    }
+    select, option {
+        font-size: 14px;
+        padding: 0 1em;
+        max-width: 150px;
+    }
+    label {
+        border-bottom: 1px solid whitesmoke;
+    }
+}
+
+@media screen and (max-width: 1600px) {
+    .lista {
+        overflow: hidden;
+        overflow-x: scroll;
+    }
+}
