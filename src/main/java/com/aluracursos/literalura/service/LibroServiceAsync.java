@@ -53,48 +53,36 @@ public class LibroServiceAsync {
     @Async
     public void actualizarDatosLibrosPorNombre(String nombreLibro) {
         List<Libro> lista = getDatosLibroPorNombre(nombreLibro);
-        System.out.println("buscando ...");
-        lista.stream().map(l -> l.getCategoria()).forEach(System.out::println);
     }
 
     @Async
     public void actualizarDatosLibrosMasDescargados() {
         List<Libro> lista = getDatosLibroMasDescargados();
-
     }
 
     @Async
     public void actualizarDatosLibrosPorLenguaje(String lenguajeLibro) {
         List<Libro> lista = getDatosLibroPorLenguaje(lenguajeLibro);
-        System.out.println("buscando ...");
-        lista.stream().map(l -> l.getLenguaje()).forEach(System.out::println);
     }
 
     @Async
     public void actualizarDatosLibrosPorPalabraClave(String palabraClave) {
         List<Libro> lista = getDatosLibroPorPalabraClave(palabraClave);
-        System.out.println("buscando ...");
-        lista.stream().map(l -> l.getTitulo()).forEach(System.out::println);;
     }
 
     @Async
     public void actualizarDatosLibrosPorTema(String tema) {
         List<Libro> lista = getDatosLibroPorTema(tema);
-        System.out.println("buscando ...");
-        lista.stream().map(l -> l.getCategoria()).forEach(System.out::println);
     }
 
     @Async
     public void actualizarDatosAutoresVivosPorAnio(Integer anio) {
         List<Libro> lista = getDatosAutorVivoPorAño(anio);
-        System.out.println("buscando ...");
-        lista.stream().map(l -> l.getAutores()).forEach(System.out::println);
     }
 
     public List<Libro> getDatosLibroPorNombre(String nombreLibro) {
         String url = URL_BASE + NOMBRE + nombreLibro.replace(" ", "+");
         List<Libro> listado = new ArrayList<>();
-        System.out.println("url " + url);
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
@@ -109,7 +97,6 @@ public class LibroServiceAsync {
     public List<Libro> getDatosLibroPorLenguaje(String lenguajeLibro) {
         String url = URL_BASE + LENGUAJE + lenguajeLibro;
         List<Libro> listado = new ArrayList<>();
-        System.out.println("url " + url);
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
@@ -124,7 +111,6 @@ public class LibroServiceAsync {
     public List<Libro> getDatosLibroPorPalabraClave(String palabraClave) {
         String url = URL_BASE + PALABRA_CLAVE + palabraClave.replace(" ", "+");
         List<Libro> listado = new ArrayList<>();
-        System.out.println("url " + url);
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
@@ -136,12 +122,9 @@ public class LibroServiceAsync {
 
     public List<Libro> getDatosLibroPorTema(String tema) {
         Categoria cate = Categoria.fromEspanol(tema);
-        System.out.println("cate "+cate);
         tema = cate.getEnIngles();
-        System.out.println("tema en ingles "+tema);
         String url = URL_BASE + PALABRA_CLAVE + tema.replace(" ", "+");
         List<Libro> listado = new ArrayList<>();
-        System.out.println("url "+url);
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApiPorTema(url, cate.name());
             listado.addAll(lista);
@@ -164,7 +147,6 @@ public class LibroServiceAsync {
     public List<Libro> getDatosAutorVivoPorAño(Integer anio) {
         String url = "https://gutendex.com/books/?author_year_end=" + anio;
         List<Libro> listado = new ArrayList<>();
-        System.out.println("url " + url);
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);

@@ -32,15 +32,12 @@ public class ConversorAClaseLibroService {
 
     public List<Libro> consultaApi(String url) {
         var json = consumoApi.obtenerDatos(url);
-        System.out.println("json " + json);
         List<DatosLibro> listado = conversorGeneral(json);
-        System.out.println("lista " + listado);
         List<Libro> libros = new ArrayList<>();
         for (DatosLibro datosLibro : listado) {
             Libro libro = convertirDatosApiALibro(datosLibro);
             if (libro != null) {
                 libros.add(libro);
-                System.out.println("guardando libro");
             }
         }
         return libros;
@@ -48,15 +45,12 @@ public class ConversorAClaseLibroService {
 
     List<Libro> consultaApiPorTema(String url, String tema) {
         var json = consumoApi.obtenerDatos(url);
-        System.out.println("json " + json);
         List<DatosLibro> listado = conversorGeneral(json);
-        System.out.println("lista " + listado);
         List<Libro> libros = new ArrayList<>();
         for (DatosLibro datosLibro : listado) {
             Libro libro = convertirDatosApiALibroPorTema(datosLibro, tema);
             if (libro != null) {
                 libros.add(libro);
-                System.out.println("guardando libro");
             }
         }
         return libros;
@@ -144,7 +138,6 @@ public class ConversorAClaseLibroService {
                     System.out.println("No se encontraron datos de autores para el libro.");
                 }
                 libroRepo.save(libro);
-                System.out.println("********* libro " + libro);
                 return libro;
             } else {
                 System.out.println("No se encontraron datos para el libro.");

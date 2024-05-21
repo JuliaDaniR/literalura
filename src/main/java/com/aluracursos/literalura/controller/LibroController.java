@@ -40,7 +40,6 @@ public class LibroController {
     public String obtenerPorId(@PathVariable Long id, ModelMap model) {
 
         Libro libro = libroService.obtenerPorId(id);
-        System.out.println("libro "+libro);
         model.addAttribute("libro", libro);
         
         return "detalles.html";
@@ -60,16 +59,6 @@ public class LibroController {
             @RequestParam(value = "nombreAutor", required = false) String nombreAutor,
             @RequestParam(value = "anio", required = false) Integer anio) {
 
-        System.out.println("Nombre= " + nombre);
-        System.out.println("Palabra clave= " + palabraClave);
-        System.out.println("inicial= " + inicial);
-        System.out.println("tipoCategoria= " + tipoCategoria);
-        System.out.println("idioma= " + idioma);
-        System.out.println("masPopulares= " + masPopulares);
-        System.out.println("librosGuardados= " + librosGuardados);
-        System.out.println("lista autores= " + listarAutores);
-        System.out.println("nombre autor= " + nombreAutor);
-        System.out.println("año= " + anio);
         List<Libro> listadoLibros = new ArrayList<>();
         List<Autor> listadoAutores = new ArrayList<>();
         String textoResultado = "";
