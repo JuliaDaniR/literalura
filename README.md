@@ -1,6 +1,4 @@
-# Librería Virtual
-
-![Librería Virtual](link_a_tu_imagen)
+e# Librería Virtual
 
 Descripción breve de tu proyecto y su objetivo.
 
