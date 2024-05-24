@@ -49,14 +49,16 @@ public class Libro {
     private List<String> formatos;
 
     private String imagen;
-
+    
+    private Boolean estado;
+    
     public Libro() {
         this.autores = new ArrayList<>();
     }
 
     public Libro(Long id, String titulo, Integer cantidadDescargas,
             String tipoDeMedio, List<Autor> autores, Lenguaje lenguaje,
-            Categoria categoria, List<String> formatos, String imagen) {
+            Categoria categoria, List<String> formatos, String imagen, Boolean estado) {
         this.id = id;
         this.titulo = titulo;
         this.cantidadDescargas = cantidadDescargas;
@@ -66,21 +68,7 @@ public class Libro {
         this.categoria = categoria;
         this.formatos = formatos;
         this.imagen = imagen;
-    }
-
-    public Map<String, String> getFormatosConUrls() {
-        Map<String, String> formatosConUrls = new LinkedHashMap<>();
-
-        // Agregar los formatos según su importancia
-        formatosConUrls.put("text/html", "https://www.gutenberg.org/ebooks/" + id + ".html.images");
-        formatosConUrls.put("application/pdf", "https://www.gutenberg.org/ebooks/" + id + ".pdf");
-        formatosConUrls.put("audio/mp4", "https://www.gutenberg.org/files/"+ id + "/m4b/" + id + "-01.m4b");
-        formatosConUrls.put("application/epub+zip", "https://www.gutenberg.org/ebooks/" + id + ".epub3.images");
-        formatosConUrls.put("application/octet-stream", "https://www.gutenberg.org/cache/epub/" + id + "/pg" + id + "-h.zip");
-
-        return formatosConUrls.entrySet().stream()
-                .limit(5) // Limitar a los 5 primeros elementos
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
+        this.estado = estado;
     }
 
     @Override

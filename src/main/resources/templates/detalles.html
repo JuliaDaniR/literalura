@@ -28,16 +28,16 @@
     <body>
         <header class="header">
             <div class="header__logo">
-                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura"></a>
+                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura" style='padding-top: 3rem;'></a>
             </div>
             <div class="header__opciones"></div>
         </header>
         <main class="ficha">
-            
-            <div class="ficha-descripcion" id="ficha-descripcion">
+
+            <div class="ficha-descripcion" id="ficha-descripcion"  th:if="${libro.estado}">
                 <h1 th:text="${libro.titulo}" style="width: 100%"></h1>
                 <div>
-                    <img th:src="${libro.imagen}" alt="${libro.titulo}" /> 
+                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg'; style='width: 100%'">
                 </div>
                 <div>
                     <div class="descricao-texto">
@@ -54,7 +54,7 @@
                 </div>
             </div>
             <div class="formatos-contain">
-                <div th:each="entry : ${libro.getFormatosConUrls()}">
+                <div th:each="entry : ${formatos}">
                     <section th:if="${entry.key == 'text/html'}">
                         <div>
                             <a th:href="${entry.value}" th:text="${@utilidades.getFormatLabel(entry.key)}" target="_blank" class="btn"></a>

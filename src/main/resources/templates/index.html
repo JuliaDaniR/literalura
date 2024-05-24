@@ -17,6 +17,7 @@
             href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;400;700&display=swap"
             rel="stylesheet"
             />
+        <link href="https://fonts.googleapis.com/css2?family=Modern+Antiqua&display=swap" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
         <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -27,19 +28,19 @@
         <title>Literalura - Nuestra selección de Libros</title>
     </head>
     <body>
-         <header class="header">
+        <header class="header">
             <div class="header__logo">
-                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura"></a>
+                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura" style='padding-top: 3rem;'></a>
             </div>
             <div class="header__opciones">
                 <div class="container-todo-filtro">
                     <div class="container-btn-filtro">
                         <button class="btn-principal" onclick="VerOpcionesFiltradoLibros()">Filtros</button>
                     </div>
-                    <form id="filtrosFormLibro" class="filtrosFormLibro" style="display: none;" method="get" action="/libros/listar">
+                    <form id="filtrosFormLibro" class="filtrosFormLibro cuadro-con-borde" style="display: none; border-image-source: url('/img/color2.jpg');" method="get" th:action="@{/libros/listar}">
                         <div class="container-checkbox-filtro" style="display: flex;">
                             <div style="border-right: 1px solid whitesmoke; padding: 0.3rem 1rem">
-                                <h3>Libro</h3>
+                                <h3 style="color: white; font-size: 3rem; margin-top: 2rem">Libro</h3>
                                 <div>
                                     <label for="buscarPorNombre">Buscar libro por nombre</label>
                                     <input type="checkbox" id="buscarPorNombre" onclick="toggleFiltro('buscarPorNombre'); toggleLabelColor(this);">
@@ -67,12 +68,17 @@
                                 <div>
                                     <label for="librosGuardados">Mostrar libros guardados</label>
                                     <input type="checkbox" id="librosGuardados" onclick="toggleLabelColor(this);">
-                                </div>                           
+                                </div>     
+                                <div>
+                                    <label for="librosEliminados">Ver libros Eliminados</label>
+                                    <input type="checkbox" id="librosEliminados" onclick="toggleLabelColor(this);">
+                                </div>
                                 <input type="hidden" id="ordenMasPopulares" name="masPopulares" value="">
                                 <input type="hidden" id="ordenLibrosGuardados" name="librosGuardados" value="">
+                                <input type="hidden" id="ordenLibrosEliminados" name="librosEliminados" value="">
                             </div>
                             <div style="padding: 0.3rem 1rem">
-                                <h3>Autor</h3>
+                                <h3 style="color: white; font-size: 3rem; margin-top: 2rem">Autor</h3>
                                 <div>
                                     <label for="listarAutores">Ver todos los autores</label>
                                     <input type="checkbox" id="listarAutores" onclick="toggleLabelColor(this);">
@@ -132,55 +138,142 @@
                 </div>
             </div>
         </header>
-        <main>
+        <div id="resultadoBusqueda" style="display: none;">
+            <!-- Contenido del resultado de búsqueda aquí -->
+            <span id="mensaje"></span>
+            <button id="cerrar" onclick="cerrarResultado()" style="margin-top: 1.5rem;">Cerrar</button>
+        </div> <main>
+            <section class="section bienvenida">
+                <h1>Bienvenidos a Nuestra Aplicación de Literatura</h1>
+                <p>Estamos encantados de presentarte nuestra aplicación de literatura, un portal donde la pasión por los libros se encuentra con la tecnología. Nuestra plataforma está conectada a una API que ofrece una vasta colección de libros en diversos idiomas y géneros, asegurando que siempre encuentres algo que te apasione.</p>
+                <p>Explora nuestra selección cuidadosamente curada de títulos, descubre los libros más descargados y disfruta de obras en tu idioma preferido. Además, conoce más sobre tus autores favoritos con enlaces directos a sus biografías.</p>
+                <p>Ya sea que busques los últimos bestsellers, clásicos atemporales, o libros en español, nuestra aplicación está aquí para satisfacer tus deseos literarios. ¡Feliz lectura!</p>
+            </section>
+            <section>
+                <div style="display: flex ; align-items: center">
+                    <div class='pergamino'>
+                        <p>"La literatura es el arte más antiguo y el más nuevo, el más constante y el más mutable, el más respetable y el más subversivo de todos." - Mario Vargas Llosa</p>  
+                    </div>
+                    <div class="pergamino">
+                        <p>"Un libro, como un viaje, se comienza con inquietud y se termina con melancolía." - José Vasconcelos</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"La literatura es una de las formas más interesantes de la soledad." - Mario Benedetti</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"La lectura de un buen libro es un diálogo incesante en que el libro habla y el alma contesta." - André Maurois</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"Un hogar sin libros es como un cuerpo sin alma." - Cicerón</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"La literatura es el arte de descubrir algo extraordinario en lo ordinario y de decir cosas extraordinarias con palabras ordinarias." - Boris Pasternak</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"Los libros son espejos: solo ves en ellos lo que ya llevas dentro." - Carlos Ruiz Zafón</p>             
+                    </div>
+                </div>
+            </section>
             <section class="section">
-                <h2>Nuestra selección de Libros</h2>
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color1.avif');">
+                    <h1 style="margin: 3rem auto; color: black">Nuestra selección de Libros</h1>
+                    <h3>Descubre nuestra cuidada selección de libros que hemos preparado para ti. Aquí encontrarás una variedad de títulos que abarcan distintos géneros y autores, cuidadosamente seleccionados para tu disfrute.</h3>
+
+                </div>
                 <ul class="lista">
-                    <li th:each="libro : ${libros}">
+                    <li th:each="libro : ${libros}" class="section_libros"  th:if="${libro.estado}">
                         <a th:href="@{/libros/detalles/__${libro.id}__}">
                             <div class="imagen-contenedor">
-                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg'; this.parentElement.querySelector('.titulo-overlay').style.display='block';">
-                                <div class="titulo-overlay" style="display: none;">
-                                    <span th:text="'Titulo: &quot;' + ${libro.titulo} + '&quot;'"></span>
-                                </div>
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
                             </div>
                         </a>
+                        <div class="titulo-overlay">
+                            <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
+                            <span>
+                                <span th:text="'De: '"></span>
+                                <span th:each="autor, iterStat : ${libro.autores}">
+                                    <span th:text="${autor.nombre}"></span>
+                                    <span th:if="${!iterStat.last}">, </span> <!-- Añade una coma si no es el último elemento -->
+                                </span>
+                            </span><br>
+                            <span th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></span>
+                        </div>
+                        <div class="boton-eliminar-contenedor">
+                            <form th:action="@{/libros/eliminar/__${libro.id}__}" method="get">                                        
+                                <button type="submit" class="eliminar-icono">Quitar</button>
+                            </form>
+                        </div>
                     </li>
                 </ul>
             </section>
             <section data-name="top20" class="section">
-                <h2>Libros más descargados</h2>
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color3.jpg');">
+                    <h1 style="margin: 3rem auto; color: black">Libros más descargados</h1>
+                    <h3>Explora los libros que están en la cima de las listas de descargas. Estos son los títulos más populares y leídos por nuestra comunidad.</h3>
+                </div>
                 <ul class="lista">
-                    <li th:each="libro : ${masDescargados}">
+                    <li th:each="libro : ${masDescargados}" class="section_libros" th:if="${libro.estado}">
                         <a th:href="@{/libros/detalles/__${libro.id}__}">
                             <div class="imagen-contenedor">
-                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg'; this.parentElement.querySelector('.titulo-overlay').style.display='block';">
-                                <div class="titulo-overlay" style="display: none;">
-                                    <span th:text="'Titulo: &quot;' + ${libro.titulo} + '&quot;'"></span>
-                                </div>
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
                             </div>
                         </a>
+                        <div class="titulo-overlay">
+                            <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
+                            <span>
+                                <span th:text="'De: '"></span>
+                                <span th:each="autor, iterStat : ${libro.autores}">
+                                    <span th:text="${autor.nombre}"></span>
+                                    <span th:if="${!iterStat.last}">, </span> <!-- Añade una coma si no es el último elemento -->
+                                </span>
+                            </span><br>
+                            <span th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></span>
+                        </div>
+                        <div class="boton-eliminar-contenedor">
+                            <form th:action="@{/libros/eliminar/__${libro.id}__}" method="get">                                        
+                                <button type="submit" class="eliminar-icono">Quitar</button>
+                            </form>
+                        </div>
                     </li>
                 </ul>
             </section>
 
             <section data-name="espanol" class="section">
-                <h2>Libros en español</h2>
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color1.jpg');">
+                    <h1 style="margin: 3rem auto; color: black">Libros en español</h1>
+                    <h3>Nuestra colección de libros en español ofrece una amplia variedad de títulos para todos los gustos. Sumérgete en la riqueza de la literatura hispana.</h3>
+                </div>
                 <ul class="lista">
-                    <li th:each="libro : ${librosEspanol}">
+                    <li th:each="libro : ${librosEspanol}" class="section_libros" th:if="${libro.estado}">
                         <a th:href="@{/libros/detalles/__${libro.id}__}">
                             <div class="imagen-contenedor">
-                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg'; this.parentElement.querySelector('.titulo-overlay').style.display='block';">
-                                <div class="titulo-overlay" style="display: none;">
-                                    <span th:text="'Titulo: &quot;' + ${libro.titulo} + '&quot;'"></span>
-                                </div>
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
                             </div>
                         </a>
+                        <div class="titulo-overlay">
+                            <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
+                            <span>
+                                <span th:text="'De: '"></span>
+                                <span th:each="autor, iterStat : ${libro.autores}">
+                                    <span th:text="${autor.nombre}"></span>
+                                    <span th:if="${!iterStat.last}">, </span> <!-- Añade una coma si no es el último elemento -->
+                                </span>
+                            </span><br>
+                            <span th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></span>
+                        </div>
+                        <div class="boton-eliminar-contenedor">
+                            <form th:action="@{/libros/eliminar/__${libro.id}__}" method="get">                                        
+                                <button type="submit" class="eliminar-icono">Quitar</button>
+                            </form>
+                        </div>
                     </li>
                 </ul>
             </section>
             <section data-name="espanol" class="section">
-                <h2>Biografía de los autores</h2>
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color2.jpg');">
+                    <h1 style="margin: 3rem auto; color: black">Biografía de los autores</h1>
+                    <h3>Conoce más sobre los autores de tus libros favoritos. Aquí puedes encontrar enlaces a sus biografías y descubrir más sobre sus vidas y obras.</h3>
+                </div>
                 <ul class="lista-autor">
                     <li th:each="autor : ${autores}">
                         <div class="autor">
@@ -198,7 +291,6 @@
                 const filtrosForm = document.getElementById('filtrosFormLibro');
                 filtrosForm.style.display = 'flex';
                 filtrosForm.style.flexDirection = 'column';
-                filtrosForm.style.border = '2px solid whitesmoke';
                 filtrosForm.style.boxShadow = '4px 6px 8px rgba(255, 255, 255, 0.7)';
             }
 
@@ -224,7 +316,7 @@
                     label.style.borderRadius = '20px';
                     label.style.padding = '0 .5rem';
                 } else {
-                    label.style.color = 'white';
+                    label.style.color = 'hsl(22, 100%, 14%)';
                     label.style.background = '';
                 }
             }
@@ -288,18 +380,59 @@
 
                 const librosGuardadosCheckbox = document.getElementById('librosGuardados');
                 const masPopularesCheckbox = document.getElementById('masPopulares');
+                const librosEliminadosCheckbox = document.getElementById('librosEliminados');
                 const listarAutoresCheckbox = document.getElementById('listarAutores');
                 const listarAutoresSelect = document.getElementById('ordenListarAutores');
                 const librosGuardadosSelect = document.getElementById('ordenLibrosGuardados');
+                const librosEliminadosSelect = document.getElementById('ordenLibrosEliminados');
                 const masPopularesSelect = document.getElementById('ordenMasPopulares');
 
                 librosGuardadosSelect.value = librosGuardadosCheckbox.checked ? "librosGuardados" : "";
                 masPopularesSelect.value = masPopularesCheckbox.checked ? "masPopulares" : "";
                 listarAutoresSelect.value = listarAutoresCheckbox.checked ? "listarAutores" : "";
+                librosEliminadosSelect.value = librosEliminadosCheckbox.checked ? "librosEliminados" : "";
 
                 formLibro.submit();
                 limpiarFiltrosLibro(); // Limpiar los filtros después de enviar el formulario
             }
+        </script>
+        <script>
+            let resultadoUrl = ''; // Variable global para almacenar la URL del resultado
+
+            function actualizarMensaje() {
+                fetch('/estadoBusqueda')
+                        .then(response => response.json())
+                        .then(data => {
+                            const mensaje = document.getElementById('mensaje');
+                            const resultadoBusqueda = document.getElementById('resultadoBusqueda');
+
+                            if (data.busquedaEnCurso) {
+                                resultadoBusqueda.style.display = 'flex';
+                                mensaje.innerText = 'Buscando...';
+                            } else {
+                                if (data.cantidadResultados > 0) {
+                                    mensaje.innerText = 'La búsqueda ha finalizado. Se encontraron ' + data.cantidadResultados + ' resultados.' + 'Para la busqueda de ' + data.tipoBusqueda;
+                                    // Guardar la URL del resultado si se encontraron resultados
+                                    resultadoUrl = '/resultadosBusqueda'; // Aquí actualiza la URL con la correcta para los resultados
+                                } else {
+                                    mensaje.innerText = 'La búsqueda ha finalizado. No se encontraron resultados.';
+                                }
+                                resultadoBusqueda.style.display = 'flex'; // Mostrar el resultado de búsqueda
+                            }
+                        })
+                        .catch(error => console.error('Error al obtener el estado de la búsqueda:', error));
+            }
+
+            function cerrarResultado() {
+                const resultadoBusqueda = document.getElementById('resultadoBusqueda');
+                resultadoBusqueda.style.display = 'none'; // Ocultar el resultado de búsqueda al hacer clic en el botón "Cerrar"
+            }
+
+            function verResultado() {
+                window.location.href = resultadoUrl; // Redirigir al usuario a la URL del resultado
+            }
+
+            actualizarMensaje(); // Comienza el proceso de actualización del mensaje al cargar la página
         </script>
     </body>
 

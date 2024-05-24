@@ -29,28 +29,41 @@
     <body>
         <header class="header">
             <div class="header__logo">
-                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura"></a>
+                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura" style='padding-top: 3rem;'></a>
             </div>
             <div class="header__opciones"></div>
         </header>
-        <main>
+        <main style="height: 100vh">
             <section class="section">
                 <div th:if="${not #lists.isEmpty(listadoLibros)}">
                     <h2 th:text="${textoResultado}"></h2>
                     <ul class="lista">
-                        <li th:each="libro : ${listadoLibros}">
+                        <li th:each="libro : ${listadoLibros}" class="section_libros" th:if="${libro.estado}">
                             <a th:href="@{/libros/detalles/__${libro.id}__}">
                                 <div class="imagen-contenedor">
-                                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg'; this.parentElement.querySelector('.titulo-overlay').style.display='block';">
-                                    <div class="titulo-overlay" style="display: none;">
-                                        <span th:text="'Titulo: &quot;' + ${libro.titulo} + '&quot;'"></span>
-                                    </div>
+                                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
                                 </div>
-                            </a>
+                            </a> 
+                            <div class="titulo-overlay">
+                                <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
+                                <span>
+                                    <span th:text="'De: '"></span>
+                                    <span th:each="autor, iterStat : ${libro.autores}">
+                                        <span th:text="${autor.nombre}"></span>
+                                        <span th:if="${!iterStat.last}">, </span> <!-- Añade una coma si no es el último elemento -->
+                                    </span>
+                                </span><br>
+                                <span th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></span>
+                            </div>
+                            <div class="boton-eliminar-contenedor">
+                                <form th:action="@{/libros/eliminar/__${libro.id}__}" method="post">                                        
+                                    <button type="submit" class="eliminar-icono">Quitar</button>
+                                </form>
+                            </div>
                         </li>
                     </ul>
                 </div>
-                <div th:if="${#lists.isEmpty(listadoLibros)}" class="mensajeResultado">
+                <div th:if="${#lists.isEmpty(listadoLibros) && buscandoLibros}" class="mensajeResultado">
                     <h2>En este momento no tienes libros guardados del tipo buscado.</h2>
                     <p>Haremos la búsqueda en nuestra API y realizaremos la carga.</p>
                     <p>Sigue navegando en nuestra API viendo todas las opciones disponibles y vuelve a buscar luego que verás tu búsqueda realizada.</p>
@@ -70,6 +83,37 @@
                         </div>
                     </li>
                 </ul>
+            </section>
+            <section class="section">
+                <div th:if="${not #lists.isEmpty(listaEliminados)}">
+                    <h2 th:text="${textoResultado}"></h2>
+                    <h2>Libros Eliminados</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Autor(es)</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="libro : ${listaEliminados}">
+                                <td th:text="${libro.titulo}"></td>
+                                <td>
+                                    <span th:each="autor, iterStat : ${libro.autores}">
+                                        <span th:text="${autor.nombre}"></span>
+                                        <span th:if="${!iterStat.last}">, </span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <form th:action="@{/libros/restaurar/__${libro.id}__}" method="get">
+                                        <button type="submit">Restaurar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </main>
     </body>

@@ -4,21 +4,22 @@ import com.aluracursos.literalura.enumerador.Categoria;
 import com.aluracursos.literalura.enumerador.Lenguaje;
 import com.aluracursos.literalura.model.Autor;
 import com.aluracursos.literalura.model.Libro;
+import com.aluracursos.literalura.model.LibrosEliminados;
+import com.aluracursos.literalura.repository.ILibroEliminadoRepository;
+import com.aluracursos.literalura.repository.ILibroRepository;
 import com.aluracursos.literalura.service.LibroService;
-import com.aluracursos.literalura.service.LibroServiceAsync;
 import java.util.ArrayList;
-import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -28,20 +29,25 @@ public class LibroController {
 
     @Autowired
     private LibroService libroService;
-    
-    private final LibroServiceAsync serviceAsync;
 
     @Autowired
-    public LibroController(LibroServiceAsync serviceAsync) {
-        this.serviceAsync = serviceAsync;
-    }
+    private ILibroEliminadoRepository libroEliminadoRepo;
+
+    @Autowired
+    private ILibroRepository libroRepo;
+    
+    @Autowired
+    private BusquedaController busquedaController;
 
     @GetMapping("/detalles/{id}")
     public String obtenerPorId(@PathVariable Long id, ModelMap model) {
 
         Libro libro = libroService.obtenerPorId(id);
+        Map<String, String> formatos = libroService.obtenerFormatos(id);
+
+        model.addAttribute("formatos", formatos);
         model.addAttribute("libro", libro);
-        
+
         return "detalles.html";
     }
 
@@ -55,17 +61,22 @@ public class LibroController {
             @RequestParam(value = "idioma", required = false) Lenguaje idioma,
             @RequestParam(value = "masPopulares", required = false) String masPopulares,
             @RequestParam(value = "librosGuardados", required = false) String librosGuardados,
+            @RequestParam(value = "librosEliminados", required = false) String librosEliminados,
             @RequestParam(value = "listarAutores", required = false) String listarAutores,
             @RequestParam(value = "nombreAutor", required = false) String nombreAutor,
-            @RequestParam(value = "anio", required = false) Integer anio) {
+            @RequestParam(value = "anio", required = false) Integer anio,
+            @RequestHeader(value = "Referer", required = false) String referer) {
 
+        System.out.println("********************* " + librosEliminados);
         List<Libro> listadoLibros = new ArrayList<>();
         List<Autor> listadoAutores = new ArrayList<>();
+        List<Libro> listaEliminados = new ArrayList<>();
+        boolean buscandoLibros = true;
         String textoResultado = "";
-        
+
         try {
             if (nombre != null && !nombre.isEmpty()) {
-                listadoLibros = libroService.listarLibrosPorNombre(nombre);  
+                listadoLibros = libroService.listarLibrosPorNombre(nombre);
                 textoResultado = "Estos son los libros encontrados en base al nombre que ingresó";
             }
             if (palabraClave != null && !palabraClave.isEmpty()) {
@@ -88,6 +99,7 @@ public class LibroController {
             }
             if (listarAutores != null && !listarAutores.isEmpty()) {
                 listadoAutores = libroService.listarAutores();
+                buscandoLibros = false;
                 textoResultado = "Estos son los autores encontrados seleccione para ver su biografia";
             }
             if (masPopulares != null && !masPopulares.isEmpty()) {
@@ -106,16 +118,56 @@ public class LibroController {
                 listadoLibros = libroService.listarLibrosDeAutoresVivosPorAnio(anio);
                 textoResultado = "Estos son los libros encontrados de autores vivos en base al año que ingreso";
             }
+            if (librosEliminados != null && !librosEliminados.isEmpty()) {
+                List<LibrosEliminados> listaEliminadosEntidades = libroService.listarEliminados();
+                List<Long> listaEliminadosIds = listaEliminadosEntidades.stream()
+                        .map(LibrosEliminados::getLibroId) // Asegúrate de que este método obtenga el ID del libro original
+                        .collect(Collectors.toList());
+
+                for (Long id : listaEliminadosIds) {
+                    Optional<Libro> libro = libroRepo.findById(id);
+                    System.out.println("libro optional " + libro.get().getTitulo());
+                    if (libro.isPresent()) {
+                        listaEliminados.add(libro.get());
+                    }
+                }
+                buscandoLibros = false;
+                textoResultado = "Estos son los libros que usted ha eliminado";
+            }
             redirectAttrs.addFlashAttribute("exito", "Estos son sus resultados de su búsqueda");
         } catch (Exception ex) {
             redirectAttrs.addFlashAttribute("error", "No se encontró ningún resultado");
         }
-
+ 
         model.addAttribute("listadoLibros", listadoLibros);
         model.addAttribute("listadoAutores", listadoAutores);
         model.addAttribute("textoResultado", textoResultado);
-        
+        model.addAttribute("listaEliminados", listaEliminados);
+        model.addAttribute("buscandoLibros", buscandoLibros);
+
         return "resultado.html";
     }
 
+    @GetMapping("/eliminar/{id}")
+    public String eliminarLibro(@PathVariable Long id, @RequestHeader(value = "Referer", required = false) String referer) {
+        Libro libro = libroService.obtenerPorId(id);
+        if (libro != null) {
+ 
+            LibrosEliminados libroEliminado = new LibrosEliminados();
+            libroEliminado.setLibroId(libro.getId());
+
+            // Guardar el registro del libro eliminado en la base de datos
+            libroEliminadoRepo.save(libroEliminado);
+
+            // Cambiar el estado del libro a false
+            libroService.eliminarLibro(id);
+        }
+        return "redirect:" + (referer != null ? referer : "/");
+    }
+
+    @GetMapping("/restaurar/{id}")
+    public String restaurarLibro(@PathVariable Long id, @RequestHeader(value = "Referer", required = false) String referer) {
+        libroService.restaurarLibro(id);
+        return "redirect:" + (referer != null ? referer : "/");
+    }
 }

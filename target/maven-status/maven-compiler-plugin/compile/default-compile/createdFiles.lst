@@ -7,8 +7,11 @@ com\aluracursos\literalura\service\LibroService.class
 com\aluracursos\literalura\enumerador\Lenguaje$LenguajeDeserializer.class
 com\aluracursos\literalura\config\AsyncConfig.class
 com\aluracursos\literalura\enumerador\Categoria.class
+com\aluracursos\literalura\model\LibrosEliminados.class
 com\aluracursos\literalura\controller\LibroController.class
 com\aluracursos\literalura\model\DatosAutor.class
+com\aluracursos\literalura\controller\BusquedaController.class
+com\aluracursos\literalura\model\EstadoBusqueda.class
 com\aluracursos\literalura\model\Autor.class
 com\aluracursos\literalura\model\Datos.class
 com\aluracursos\literalura\service\ConvierteDatos.class
@@ -17,5 +20,6 @@ com\aluracursos\literalura\controller\PortalController.class
 com\aluracursos\literalura\repository\IAutorRepository.class
 com\aluracursos\literalura\service\IConvierteDatos.class
 com\aluracursos\literalura\model\Libro.class
+com\aluracursos\literalura\repository\ILibroEliminadoRepository.class
 com\aluracursos\literalura\model\Utilidades.class
 com\aluracursos\literalura\service\ConsumoApi.class

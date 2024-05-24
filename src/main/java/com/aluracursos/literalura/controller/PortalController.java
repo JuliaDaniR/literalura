@@ -27,7 +27,7 @@ public class PortalController {
     private ILibroRepository libroRepo;
 
     @GetMapping("/")
-    public String obtenerTodasLasLibros(ModelMap model) {
+    public String obtenerTodosLosLibros(ModelMap model) {
 
         List<Libro> libros = new ArrayList<>();
         List<Libro> masDescargados = new ArrayList<>();

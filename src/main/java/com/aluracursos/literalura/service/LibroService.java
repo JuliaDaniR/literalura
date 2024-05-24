@@ -4,7 +4,9 @@ import com.aluracursos.literalura.enumerador.Categoria;
 import com.aluracursos.literalura.enumerador.Lenguaje;
 import com.aluracursos.literalura.model.*;
 import com.aluracursos.literalura.repository.IAutorRepository;
+import com.aluracursos.literalura.repository.ILibroEliminadoRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +18,15 @@ public class LibroService {
 
     private final ILibroRepository libroRepo;
     private final IAutorRepository autorRepo;
+    private final ILibroEliminadoRepository libroElimRepo;
     private final LibroServiceAsync serviceAsync;
     private Categoria categoria;
 
     @Autowired
-    public LibroService(ILibroRepository libroRepo, IAutorRepository autorRepo, LibroServiceAsync serviceAsync) {
+    public LibroService(ILibroRepository libroRepo, IAutorRepository autorRepo, ILibroEliminadoRepository libroElimRepo, LibroServiceAsync serviceAsync) {
         this.libroRepo = libroRepo;
         this.autorRepo = autorRepo;
+        this.libroElimRepo = libroElimRepo;
         this.serviceAsync = serviceAsync;
     }
 
@@ -46,11 +50,11 @@ public class LibroService {
         if (listado.isEmpty()) {
             serviceAsync.getDatosLibroPorNombre(nombreLibro);
             listaPorNombre = listado.stream()
-                    .filter(l -> l.getTitulo().equalsIgnoreCase(nombreLibro))
+                    .filter(l -> l.getTitulo().toLowerCase().contains(nombreLibro.toLowerCase()))
                     .collect(Collectors.toList());
         } else {
             listaPorNombre = listado.stream()
-                    .filter(l -> l.getTitulo().equalsIgnoreCase(nombreLibro))
+                    .filter(l -> l.getTitulo().toLowerCase().contains(nombreLibro.toLowerCase()))
                     .collect(Collectors.toList());
             if (listaPorNombre.isEmpty()) {
                 System.out.println("No se encontro ningun libro buscaremos en la api");
@@ -145,15 +149,6 @@ public class LibroService {
         return libros;
     }
 
-    public Libro obtenerPorId(Long id) {
-        Libro libro1 = new Libro();
-        Optional<Libro> libro = libroRepo.findById(id);
-        if (libro.isPresent()) {
-            libro1 = libro.get();
-        }
-        return libro1;
-    }
-
     public List<Libro> listarLibrosPorInicial(String inicial) {
 
         List<Libro> list = libroRepo.findAll();
@@ -198,6 +193,8 @@ public class LibroService {
         return autores;
     }
 
+    //Proceso el nombre del autor que viene desde la api para poder hacer la 
+    //busqueda de su biografia en wikipedia
     private String procesarNombreAutor(String nombreAutor) {
         StringBuilder nombreAutorFormateado = new StringBuilder();
         String[] partes = nombreAutor.split(", ");
@@ -219,6 +216,7 @@ public class LibroService {
         return nombreAutorFormateado.toString();
     }
 
+    //Elimino las palabras entre parentesis para el formato del nombre del autor
     private String eliminarPalabrasEntreParentesis(String texto) {
         StringBuilder textoSinParentesis = new StringBuilder();
         boolean dentroDeParentesis = false;
@@ -244,5 +242,92 @@ public class LibroService {
         return lista.stream()
                 .filter(libro -> libro.getLenguaje() == Lenguaje.ESPANOL)
                 .collect(Collectors.toList());
+    }
+
+    public void mostrarListaEliminados() {
+        List<Libro> librosEliminados = new ArrayList<>();
+
+    }
+
+    public Map<String, String> obtenerFormatos(Long id) {
+        Libro libro = libroRepo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Libro no encontrado"));
+
+        Map<String, String> formatosConUrls = new LinkedHashMap<>();
+
+        List<String> formatosDelLibro = libroRepo.buscarFormatosDelLibro(id);
+
+        for (String formato : formatosDelLibro) {
+            switch (formato) {
+                case "text/html":
+                    formatosConUrls.put("text/html", "https://www.gutenberg.org/ebooks/" + id + ".html.images");
+                    break;
+                case "application/pdf":
+                    formatosConUrls.put("application/pdf", "https://www.gutenberg.org/ebooks/" + id + ".pdf");
+                    break;
+                case "audio/mp4":
+                    formatosConUrls.put("audio/mp4", "https://www.gutenberg.org/files/" + id + "/m4b/" + id + "-01.m4b");
+                    break;
+                case "application/epub+zip":
+                    formatosConUrls.put("application/epub+zip", "https://www.gutenberg.org/ebooks/" + id + ".epub3.images");
+                    break;
+                case "application/octet-stream":
+                    formatosConUrls.put("application/octet-stream", "https://www.gutenberg.org/cache/epub/" + id + "/pg" + id + "-h.zip");
+                    break;
+                default:
+                    // Manejar otros formatos si es necesario
+                    break;
+            }
+        }
+        return formatosConUrls.entrySet().stream()
+                .limit(5) // Limitar a los 5 primeros elementos
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
+    }
+
+    public List<LibrosEliminados> listarEliminados() {
+        return libroElimRepo.findAll();
+    }
+
+    public void eliminarLibro(Long id) {
+        Optional<Libro> libro = libroRepo.findById(id);
+        if (libro.isPresent()) {
+            Libro libroEntidad = libro.get();
+            libroEntidad.setEstado(false);
+            libroRepo.save(libroEntidad); // Guardar el cambio de estado en la base de datos
+        }
+    }
+
+    public List<Libro> getLibrosPorIds(List<Long> ids) {
+        List<Libro> listado = new ArrayList<>();
+        for (Long id : ids) {
+            Libro libro = obtenerPorId(id);
+            listado.add(libro);
+        }
+        System.out.println("listado getLibro " + listado);
+        return listado;
+    }
+
+    public Libro obtenerPorId(Long id) {
+        Optional<Libro> libro = libroRepo.findById(id);
+        System.out.println(" libro " + libro.get());
+        return libro.orElse(null); // Manejar el caso cuando el libro no se encuentra
+    }
+
+    public void restaurarLibro(Long id) {
+        Optional<Libro> libro = libroRepo.findById(id);
+        if (libro.isPresent()) {
+            Libro libroEntidad = libro.get();
+            libroEntidad.setEstado(true);
+            libroRepo.save(libroEntidad); // Guardar el cambio de estado en la base de datos
+
+            // Eliminar el registro de LibrosEliminados
+            List<LibrosEliminados> lista = libroElimRepo.findAll();
+            for (LibrosEliminados librosEliminados : lista) {
+                if (librosEliminados.getLibroId().equals(id)) {
+                    libroElimRepo.deleteById(librosEliminados.getId());
+                    break;
+                }
+            }
+        }
     }
 }
