@@ -45,10 +45,6 @@ Las entidades `Libro` y `Autor` tienen una relación de muchos a muchos. Esto si
 
 ## Ejemplos de Uso
 
-```java
-// Ejemplo de código para buscar libros en la API de Gutendex
-LibroService libroService = new LibroService();
-List<Libro> libros = libroService.buscarLibros("título del libro");
 ## Instalación
 
 1. Clona este repositorio.
