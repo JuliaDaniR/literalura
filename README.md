@@ -23,6 +23,7 @@ Este proyecto fue realizado para cumplir con el Challenge de Spring del programa
 - **categoria**: Categoría del libro.
 - **formatos**: Lista de formatos disponibles para el libro (por ejemplo, PDF, ePub).
 - **imagen**: URL de la imagen de la portada del libro.
+- **estado**: Permite dar de baja para poder ocultar los libros que no desea ver.
 
 ### Autor
 
