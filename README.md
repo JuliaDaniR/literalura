@@ -21,8 +21,9 @@ Este proyecto fue realizado para cumplir con el Challenge de Spring del programa
 - **autores**: Lista de autores del libro (relación muchos a muchos con la entidad `Autor`).
 - **lenguaje**: Lenguaje en el que está escrito el libro.
 - **categoria**: Categoría del libro.
-- **formatos**: Lista de formatos disponibles para el libro (por ejemplo, PDF, ePub).
+- **formatos**: Lista de formatos disponibles para el libro (por ejemplo,Ver en linea, Descargar PDF, ePub , audiolibro).
 - **imagen**: URL de la imagen de la portada del libro.
+- **estado**: Permite dar de baja para poder ocultar los libros que no desea ver.
 
 ### Autor
 
@@ -30,7 +31,7 @@ Este proyecto fue realizado para cumplir con el Challenge de Spring del programa
 - **nombre**: Nombre del autor.
 - **anioNac**: Año de nacimiento del autor.
 - **anioMuerte**: Año de muerte del autor (si aplica).
-- **libros**: Lista de libros escritos por el autor (relación muchos a muchos con la entidad `Libro`).
+- **Acceso a Biografia**: Los autores tienen un enlace a su biografia en wikipedia.
 
 Las entidades `Libro` y `Autor` tienen una relación de muchos a muchos. Esto significa que un libro puede tener múltiples autores y un autor puede haber escrito múltiples libros. La relación se maneja mediante una tabla intermedia `autor_libro`.
 
@@ -44,10 +45,6 @@ Las entidades `Libro` y `Autor` tienen una relación de muchos a muchos. Esto si
 
 ## Ejemplos de Uso
 
-```java
-// Ejemplo de código para buscar libros en la API de Gutendex
-LibroService libroService = new LibroService();
-List<Libro> libros = libroService.buscarLibros("título del libro");
 ## Instalación
 
 1. Clona este repositorio.
