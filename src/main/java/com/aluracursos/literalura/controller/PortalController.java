@@ -19,36 +19,46 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/")
 public class PortalController {
-    
+
     @Autowired
     private LibroService libroService;
-    
+
     @Autowired
     private ILibroRepository libroRepo;
 
     @GetMapping("/")
     public String obtenerTodosLosLibros(ModelMap model) {
-
         List<Libro> libros = new ArrayList<>();
         List<Libro> masDescargados = new ArrayList<>();
-        List<Autor> autores =  new ArrayList<>();
-        List<Libro> librosEspanol =new ArrayList<>();
-        
-        if(libroRepo.findAll().isEmpty()){
-        libros = libroService.listarLibros().stream().sorted(Comparator.comparing(Libro::getTitulo)).limit(10).collect(Collectors.toList());
-        masDescargados = libroService.listar100LibrosMasDescargados().stream().limit(10).collect(Collectors.toList());
-        autores = libroService.listarAutores().stream().limit(22).collect(Collectors.toList());
-        librosEspanol = libroService.librosEnEspañol().stream().limit(10).collect(Collectors.toList());
-        }else{
-        libros = libroRepo.findAll().stream().sorted(Comparator.comparing(Libro::getTitulo)).limit(10).collect(Collectors.toList());
-        masDescargados = libroRepo.findAll().stream().sorted(Comparator.comparingInt(Libro::getCantidadDescargas).reversed()).limit(10).collect(Collectors.toList());
-        autores = libroService.listarAutores().stream().limit(22).collect(Collectors.toList());
-        librosEspanol = libroRepo.findAll().stream()
-               .filter(libro -> libro.getLenguaje() == Lenguaje.ESPANOL)
-               .sorted(Comparator.comparingInt(Libro::getCantidadDescargas).reversed())
+        List<Autor> autores = new ArrayList<>();
+        List<Libro> librosEspanol = new ArrayList<>();
+
+        // Obtener y ordenar los libros por título, limitando a 10
+        libros = libroRepo.findAllByEstadoTrue().stream() // Filtra solo los libros activos
+                .sorted(Comparator.comparing(Libro::getTitulo))
                 .limit(10)
                 .collect(Collectors.toList());
-        }
+
+        // Obtener y ordenar los libros más descargados, limitando a 10
+        masDescargados = libroRepo.findAllByEstadoTrue().stream() // Filtra solo los libros activos
+                .sorted(Comparator.comparingInt(Libro::getCantidadDescargas).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+
+        // Obtener y limitar la lista de autores a 22
+        autores = libroService.listarAutores().stream()
+                .limit(22)
+                .collect(Collectors.toList());
+
+        // Obtener y ordenar los libros en español por cantidad de descargas, limitando a 10
+        librosEspanol = libroRepo.findAllByLenguajeAndEstadoTrue(Lenguaje.ESPANOL).stream() // Filtra solo los libros activos
+                .sorted(Comparator.comparingInt(Libro::getCantidadDescargas).reversed())
+                .limit(10)
+                .collect(Collectors.toList());
+        
+        libroService.listar100LibrosMasDescargados();
+
+        // Añadir los atributos al modelo
         model.addAttribute("librosEspanol", librosEspanol);
         model.addAttribute("autores", autores);
         model.addAttribute("libros", libros);
@@ -58,4 +68,5 @@ public class PortalController {
 
         return "index.html";
     }
+
 }

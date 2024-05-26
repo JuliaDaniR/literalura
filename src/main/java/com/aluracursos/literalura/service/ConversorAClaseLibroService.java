@@ -106,6 +106,7 @@ public class ConversorAClaseLibroService {
             }
             libro.setTitulo(titulo);
             libro.setEstado(Boolean.TRUE);
+            libro.setFavorito(Boolean.FALSE);
             libro.setCantidadDescargas(datosLibro.cantidadDescargas());
             libro.setTipoDeMedio(datosLibro.tipoDeMedio());
             if (datosLibro.lenguajes() != null && !datosLibro.lenguajes().isEmpty()) {

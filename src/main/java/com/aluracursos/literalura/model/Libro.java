@@ -52,13 +52,15 @@ public class Libro {
     
     private Boolean estado;
     
+    private Boolean favorito;
+    
     public Libro() {
         this.autores = new ArrayList<>();
     }
 
     public Libro(Long id, String titulo, Integer cantidadDescargas,
             String tipoDeMedio, List<Autor> autores, Lenguaje lenguaje,
-            Categoria categoria, List<String> formatos, String imagen, Boolean estado) {
+            Categoria categoria, List<String> formatos, String imagen, Boolean estado , Boolean favorito) {
         this.id = id;
         this.titulo = titulo;
         this.cantidadDescargas = cantidadDescargas;
@@ -69,6 +71,11 @@ public class Libro {
         this.formatos = formatos;
         this.imagen = imagen;
         this.estado = estado;
+        this.favorito = favorito;
+    }
+    
+    public boolean isFavorito() {
+        return favorito;
     }
 
     @Override

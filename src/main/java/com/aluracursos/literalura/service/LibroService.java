@@ -330,4 +330,9 @@ public class LibroService {
             }
         }
     }
+
+    public List<Libro> listarFavoritos() {
+        List<Libro> favoritos = libroRepo.findAllByFavoritoTrue();
+        return favoritos != null ? favoritos : new ArrayList();
+    }
 }

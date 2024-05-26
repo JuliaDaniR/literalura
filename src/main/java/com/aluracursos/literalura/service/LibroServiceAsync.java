@@ -1,6 +1,7 @@
 package com.aluracursos.literalura.service;
 
 import com.aluracursos.literalura.enumerador.Categoria;
+import com.aluracursos.literalura.enumerador.Lenguaje;
 import com.aluracursos.literalura.model.Libro;
 import com.aluracursos.literalura.repository.IAutorRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
@@ -84,7 +85,8 @@ public class LibroServiceAsync {
             List<Libro> lista = getDatosLibroPorLenguaje(lenguajeLibro);
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
-            tipoBusqueda = "Lenguaje: " + lenguajeLibro.toUpperCase();
+            Lenguaje leng = Lenguaje.fromEspanol(lenguajeLibro);
+            tipoBusqueda = "Lenguaje: " + leng;
             return lista;
         });
     }

@@ -33,7 +33,7 @@
             </div>
             <div class="header__opciones"></div>
         </header>
-        <main style="height: 100vh">
+        <main style="height: 100%">
             <section class="section">
                 <div th:if="${not #lists.isEmpty(listadoLibros)}">
                     <h2 th:text="${textoResultado}"></h2>
@@ -41,9 +41,13 @@
                         <li th:each="libro : ${listadoLibros}" class="section_libros" th:if="${libro.estado}">
                             <a th:href="@{/libros/detalles/__${libro.id}__}">
                                 <div class="imagen-contenedor">
-                                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
+                                    <div class="favorito-contenedor">
+                                        <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
+                                              th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
+                                    </div>
+                                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
                                 </div>
-                            </a> 
+                            </a>
                             <div class="titulo-overlay">
                                 <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
                                 <span>
@@ -86,28 +90,27 @@
             </section>
             <section class="section">
                 <div th:if="${not #lists.isEmpty(listaEliminados)}">
-                    <h2 th:text="${textoResultado}"></h2>
-                    <h2>Libros Eliminados</h2>
-                    <table class="table">
+                    <h2 th:text="${textoResultado}" class="cuadro-con-borde" style="padding: 3rem;color: black; font-weight: bold;margin-top: 5rem; border-image-source: url('/img/color1.jpg');"></h2>
+                    <table class="table" style="border: 4px groove crimson;">
                         <thead>
                             <tr>
-                                <th>Título</th>
-                                <th>Autor(es)</th>
-                                <th>Acciones</th>
+                                <th style="border: 4px groove black; background: crimson; color: white; font-weight: bold; font-size: 2rem">Título</th>
+                                <th style="border: 4px groove black; background: crimson; color: white; font-weight: bold; font-size: 2rem">Autor</th>
+                                <th style="border: 4px groove black; background: crimson; color: white; font-weight: bold; font-size: 2rem">Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr th:each="libro : ${listaEliminados}">
-                                <td th:text="${libro.titulo}"></td>
-                                <td>
+                                <td th:text="${libro.titulo}" style="border: 4px solid black;"></td>
+                                <td style="border: 4px solid black;">
                                     <span th:each="autor, iterStat : ${libro.autores}">
                                         <span th:text="${autor.nombre}"></span>
                                         <span th:if="${!iterStat.last}">, </span>
                                     </span>
                                 </td>
-                                <td>
+                                <td style="border: 4px solid black;">
                                     <form th:action="@{/libros/restaurar/__${libro.id}__}" method="get">
-                                        <button type="submit" style="border-radius: 20px; padding: 0.5rem; background: crimson; color: black">Restaurar</button>
+                                        <button type="submit" style="border-radius: 20px; padding: 0.5rem; background: crimson; color: white; font-weight: bold">Restaurar</button>
                                     </form>
                                 </td>
                             </tr>
@@ -116,5 +119,32 @@
                 </div>
             </section>
         </main>
+        <footer id="contacto">
+            <div class="footer">
+                <div class="contain-redes flex gap-x-4">
+                    <i class="bi bi-github" style="font-size: 28px;"></i>
+                    <i class="bi bi-twitter" style="font-size: 28px;"></i>
+                    <i class="bi bi-facebook" style="font-size: 28px;"></i>
+                </div>
+                <div class="mt-4">
+                    <p class="text-[25px] font-bold capitalize">&#9400; copyright - 2024</p>
+                    <small class="mt-1.5 font-semibold">Elaborado por Julia Rodriguez</small>
+                </div>              
+            </div>
+        </footer>  
+        <script>
+            function toggleFavorito(libroId) {
+                fetch(`/libros/favorito/${libroId}`, {
+                    method: 'POST'
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                location.reload(); // Recargar la página para reflejar el cambio
+                            } else {
+                                console.error('Error al actualizar el favorito');
+                            }
+                        });
+            }
+        </script>
     </body>
 </html>

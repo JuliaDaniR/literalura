@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -35,9 +38,6 @@ public class LibroController {
 
     @Autowired
     private ILibroRepository libroRepo;
-    
-    @Autowired
-    private BusquedaController busquedaController;
 
     @GetMapping("/detalles/{id}")
     public String obtenerPorId(@PathVariable Long id, ModelMap model) {
@@ -62,6 +62,7 @@ public class LibroController {
             @RequestParam(value = "masPopulares", required = false) String masPopulares,
             @RequestParam(value = "librosGuardados", required = false) String librosGuardados,
             @RequestParam(value = "librosEliminados", required = false) String librosEliminados,
+            @RequestParam(value = "librosFavoritos", required = false) String librosFavoritos,
             @RequestParam(value = "listarAutores", required = false) String listarAutores,
             @RequestParam(value = "nombreAutor", required = false) String nombreAutor,
             @RequestParam(value = "anio", required = false) Integer anio,
@@ -134,11 +135,15 @@ public class LibroController {
                 buscandoLibros = false;
                 textoResultado = "Estos son los libros que usted ha eliminado";
             }
+            if (librosFavoritos != null && !librosFavoritos.isEmpty()){
+                listadoLibros = libroService.listarFavoritos();
+                textoResultado = "Estos son tus favoritos";
+            }
             redirectAttrs.addFlashAttribute("exito", "Estos son sus resultados de su búsqueda");
         } catch (Exception ex) {
             redirectAttrs.addFlashAttribute("error", "No se encontró ningún resultado");
         }
- 
+
         model.addAttribute("listadoLibros", listadoLibros);
         model.addAttribute("listadoAutores", listadoAutores);
         model.addAttribute("textoResultado", textoResultado);
@@ -152,7 +157,7 @@ public class LibroController {
     public String eliminarLibro(@PathVariable Long id, @RequestHeader(value = "Referer", required = false) String referer) {
         Libro libro = libroService.obtenerPorId(id);
         if (libro != null) {
- 
+
             LibrosEliminados libroEliminado = new LibrosEliminados();
             libroEliminado.setLibroId(libro.getId());
 
@@ -161,8 +166,9 @@ public class LibroController {
 
             // Cambiar el estado del libro a false
             libroService.eliminarLibro(id);
+
         }
-        return "redirect:" + (referer != null ? referer : "/");
+        return "redirect:/";
     }
 
     @GetMapping("/restaurar/{id}")
@@ -170,4 +176,24 @@ public class LibroController {
         libroService.restaurarLibro(id);
         return "redirect:" + (referer != null ? referer : "/");
     }
+        
+     @PostMapping("/favorito/{id}")
+    public ResponseEntity<Void> toggleFavorito(@PathVariable Long id) {
+        try {
+            Libro libro = libroService.obtenerPorId(id);
+            if (libro != null) {
+                libro.setFavorito(!libro.isFavorito());
+                libroRepo.save(libro);
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            // Registro del error para depuración
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+   
 }

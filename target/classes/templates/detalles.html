@@ -40,7 +40,7 @@
                     <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg'; style='width: 100%'">
                 </div>
                 <div>
-                    <div class="descricao-texto">
+                    <div class="descricao-texto" style="margin-left: 4rem; flex-wrap: wrap">
                         <h3 th:text="'Cantidad de descargas: ' + ${libro.cantidadDescargas}"></h3>
                         <h3>Autores:</h3>
                         <div th:each="autor : ${libro.autores}">
@@ -83,5 +83,18 @@
                 </div>
             </div>
         </main>
+        <footer id="contacto">
+            <div class="footer">
+                <div class="contain-redes">
+                    <i class="bi bi-github" style="font-size: 28px;"></i>
+                    <i class="bi bi-twitter" style="font-size: 28px;"></i>
+                    <i class="bi bi-facebook" style="font-size: 28px;"></i>
+                </div>
+                <div class="mt-4">
+                    <p class="text-[25px] font-bold capitalize">&#9400; copyright - 2024</p>
+                    <small class="mt-1.5 font-semibold">Elaborado por Julia Rodriguez</small>
+                </div>              
+            </div>
+        </footer>
     </body>
 </html>
