@@ -25,8 +25,9 @@ public class BusquedaController {
     public ResponseEntity<EstadoBusqueda> obtenerEstadoBusqueda() {
         boolean busquedaEnCurso = libroServiceAsync.isBusquedaEnCurso();
         int cantidadResultados = libroServiceAsync.getCantidadResultados();
+        int cantidadResultadosParcial = libroServiceAsync.getCantidadResultadosParcial();
         String tipoBusqueda = libroServiceAsync.getTipoBusqueda();
-        EstadoBusqueda estadoBusqueda = new EstadoBusqueda(busquedaEnCurso, cantidadResultados, tipoBusqueda);
+        EstadoBusqueda estadoBusqueda = new EstadoBusqueda(busquedaEnCurso, cantidadResultados, cantidadResultadosParcial, tipoBusqueda);
         return ResponseEntity.ok(estadoBusqueda);
     }
 

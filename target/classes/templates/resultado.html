@@ -45,7 +45,7 @@
                                         <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
                                               th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
                                     </div>
-                                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
+                                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
                                 </div>
                             </a>
                             <div class="titulo-overlay">

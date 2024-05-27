@@ -40,7 +40,7 @@
                     <form id="filtrosFormLibro" class="filtrosFormLibro cuadro-con-borde" style="display: none; border-image-source: url('/img/color2.jpg');" method="get" th:action="@{/libros/listar}">
                         <div class="container-checkbox-filtro" style="display: flex;">
                             <div style="border-right: 1px solid whitesmoke; padding: 0.3rem 1rem">
-                                <h3 style="color: white; font-size: 3rem; margin-top: 2rem">Libro</h3>
+                                <h3 style="margin-top: 2rem">Libro</h3>
                                 <div>
                                     <label for="buscarPorNombre">Buscar libro por nombre</label>
                                     <input type="checkbox" id="buscarPorNombre" onclick="toggleFiltro('buscarPorNombre'); toggleLabelColor(this);">
@@ -83,7 +83,7 @@
                                 <input type="hidden" id="ordenLibrosFavoritos" name="librosFavoritos" value="">
                             </div>
                             <div style="padding: 0.3rem 1rem">
-                                <h3 style="color: white; font-size: 3rem; margin-top: 2rem">Autor</h3>
+                                <h3 style="margin-top: 2rem">Autor</h3>
                                 <div>
                                     <label for="listarAutores">Ver todos los autores</label>
                                     <input type="checkbox" id="listarAutores" onclick="toggleLabelColor(this);">
@@ -155,7 +155,7 @@
                 <p>Ya sea que busques los últimos bestsellers, clásicos atemporales, o libros en español, nuestra aplicación está aquí para satisfacer tus deseos literarios. ¡Feliz lectura!</p>
             </section>
             <section>
-                <div style="display: flex ; align-items: center">
+                <div style="display: flex ; align-items: center; flex-wrap: wrap; justify-content: center">
                     <div class='pergamino'>
                         <p>"La literatura es el arte más antiguo y el más nuevo, el más constante y el más mutable, el más respetable y el más subversivo de todos." - Mario Vargas Llosa</p>  
                     </div>
@@ -193,7 +193,7 @@
                                     <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
                                           th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
                                 </div>
-                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
                             </div>
                         </a>
                         <div class="titulo-overlay">
@@ -228,7 +228,7 @@
                                     <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
                                           th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
                                 </div>
-                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
                             </div>
                         </a>
                         <div class="titulo-overlay">
@@ -264,7 +264,7 @@
                                     <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
                                           th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
                                 </div>
-                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='img/No-disponible-libro.jpg';">
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
                             </div>
                         </a>
                         <div class="titulo-overlay">
@@ -424,13 +424,14 @@
                 listarAutoresSelect.value = listarAutoresCheckbox.checked ? "listarAutores" : "";
                 librosEliminadosSelect.value = librosEliminadosCheckbox.checked ? "librosEliminados" : "";
                 librosFavoritosSelect.value = librosFavoritosCheckbox.checked ? "librosFavoritos" : "";
-                
+
                 formLibro.submit();
                 limpiarFiltrosLibro(); // Limpiar los filtros después de enviar el formulario
             }
         </script>
         <script>
-            let resultadoUrl = ''; // Variable global para almacenar la URL del resultado
+
+            let intervaloActualizacion;
 
             function actualizarMensaje() {
                 fetch('/estadoBusqueda')
@@ -441,16 +442,24 @@
 
                             if (data.busquedaEnCurso) {
                                 resultadoBusqueda.style.display = 'flex';
-                                mensaje.innerText = 'Buscando...';
+                                mensaje.innerText = 'Buscando... \n Hasta ahora se han encontrado ' + data.cantidadResultadosParcial + ' resultados.';
+                                // Inicia el intervalo solo si aún no ha sido iniciado
+                                if (!intervaloActualizacion) {
+                                    intervaloActualizacion = setInterval(actualizarMensaje, 2000);
+                                }
                             } else {
                                 if (data.cantidadResultados > 0) {
-                                    mensaje.innerText = 'La búsqueda ha finalizado. Se encontraron ' + data.cantidadResultados + ' resultados.' + 'Para la busqueda de ' + data.tipoBusqueda;
-                                    // Guardar la URL del resultado si se encontraron resultados
-                                    resultadoUrl = '/resultadosBusqueda'; // Aquí actualiza la URL con la correcta para los resultados
+                                    mensaje.innerText = 'La búsqueda ha finalizado. \nSe encontraron ' + data.cantidadResultados + ' resultados.' + '\nPara la busqueda de ' + data.tipoBusqueda;
+
                                 } else {
-                                    mensaje.innerText = 'La búsqueda ha finalizado. No se encontraron resultados.';
+                                    mensaje.innerText = 'La búsqueda ha finalizado. \nNo se encontraron resultados.';
                                 }
                                 resultadoBusqueda.style.display = 'flex'; // Mostrar el resultado de búsqueda
+                                // Detener el intervalo cuando la búsqueda haya finalizado
+                                if (intervaloActualizacion) {
+                                    clearInterval(intervaloActualizacion);
+                                    intervaloActualizacion = null; // Restablecer la variable del intervalo
+                                }
                             }
                         })
                         .catch(error => console.error('Error al obtener el estado de la búsqueda:', error));
@@ -459,10 +468,6 @@
             function cerrarResultado() {
                 const resultadoBusqueda = document.getElementById('resultadoBusqueda');
                 resultadoBusqueda.style.display = 'none'; // Ocultar el resultado de búsqueda al hacer clic en el botón "Cerrar"
-            }
-
-            function verResultado() {
-                window.location.href = resultadoUrl; // Redirigir al usuario a la URL del resultado
             }
 
             actualizarMensaje(); // Comienza el proceso de actualización del mensaje al cargar la página

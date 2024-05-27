@@ -381,7 +381,7 @@ label {
     background-color: #f9e5d8;
     border: 8px solid #a9856d;
     padding: 2rem;
-    margin: 20px;
+    margin: 10px;
     font-family: 'Modern Antiqua', Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
     font-size: 18px;
     font-weight: 700;
@@ -490,14 +490,14 @@ label {
 
 .imagen-contenedor {
     position: relative;
-    display: inline-block; 
+    display: inline-block;
 }
 
 .favorito-contenedor {
     position: absolute;
     top: 0;
     right: 0;
-    z-index: 10; 
+    z-index: 10;
 }
 
 .favorito-lleno {
@@ -515,11 +515,15 @@ label {
     font-size: 40px;
     cursor: pointer;
 }
+h3{
+    font-size: 3rem;
+    color:white;
+}
 
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 550px) {
     h1, h2 {
-        font-size: 1.2rem;
+        font-size: 2rem;
     }
     .ficha-descripcion {
         width: 100%;
@@ -529,7 +533,7 @@ label {
         width: 100%;
     }
     .lista li img {
-        width: 100%;
+        width: 150%;
         height: 100%;
         background-size: cover;
         background-position: center;
@@ -561,7 +565,7 @@ label {
     }
     .filtrosFormLibro {
         padding: .5rem;
-        margin: 2rem;
+        margin: 1rem;
     }
     select, option {
         font-size: 14px;
@@ -570,8 +574,48 @@ label {
     }
     label {
         border-bottom: 1px solid whitesmoke;
-        font-size: 1.3rem;
+        font-size: 1rem;
         font-weight: bold;
+    }
+    .titulo-overlay {
+        width: 130%;
+        font-size: .8rem;
+    }
+    .imagen-contenedor {
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+    .favorito-contenedor {
+        right: -10px;
+    }
+    #resultadoBusqueda {
+        width: 70%;
+        font-size: 1rem;
+        position: sticky;
+    }
+    .cuadro-con-borde{
+        position: relative;
+        border-image-width: 10px;
+    }
+    .lista {
+        justify-content: center;
+    }
+    .section_libros{
+        width: 90%;
+        padding: 1rem 3rem 2rem 3rem;
+    }
+    h3{
+        font-size: 2rem;
+        color: #0d4645;
+    }
+    .container-checkbox-filtro {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .container-btn-filtro button:not(.btn-principal) {
+        font-size: .8rem;
+        margin-left: .3rem;
     }
 }
 

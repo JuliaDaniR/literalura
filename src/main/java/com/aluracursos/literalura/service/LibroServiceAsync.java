@@ -44,6 +44,9 @@ public class LibroServiceAsync {
     @Value("${busqueda.tipoBusqueda}")
     private String tipoBusqueda;
 
+    @Value("${busqueda.cantidadResultadoParcial}")
+    private Integer cantidadResultadosParcial;
+
     @Autowired
     public LibroServiceAsync(ILibroRepository libroRepo, IAutorRepository autorRepo, ConversorAClaseLibroService conversorAClaseLibroService) {
         this.libroRepo = libroRepo;
@@ -85,7 +88,7 @@ public class LibroServiceAsync {
             List<Libro> lista = getDatosLibroPorLenguaje(lenguajeLibro);
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
-            Lenguaje leng = Lenguaje.fromEspanol(lenguajeLibro);
+            Lenguaje leng = Lenguaje.fromString(lenguajeLibro);
             tipoBusqueda = "Lenguaje: " + leng;
             return lista;
         });
@@ -137,6 +140,10 @@ public class LibroServiceAsync {
     public int getCantidadResultados() {
         return cantidadResultados;
     }
+    
+    public int getCantidadResultadosParcial() {
+        return cantidadResultadosParcial;
+    }
 
     public String getTipoBusqueda() {
         return tipoBusqueda;
@@ -145,12 +152,15 @@ public class LibroServiceAsync {
     public List<Libro> getDatosLibroPorNombre(String nombreLibro) {
         String url = URL_BASE + NOMBRE + nombreLibro.replace(" ", "+");
         List<Libro> listado = new ArrayList<>();
+        cantidadResultadosParcial = 0;
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
 
             // Obtener el enlace a la siguiente página de resultados
             url = obtenerSiguientePagina(url);
+
+            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
         }
         System.out.println("busqueda finalizada");
         return listado;
@@ -159,12 +169,15 @@ public class LibroServiceAsync {
     public List<Libro> getDatosLibroPorLenguaje(String lenguajeLibro) {
         String url = URL_BASE + LENGUAJE + lenguajeLibro;
         List<Libro> listado = new ArrayList<>();
+        cantidadResultadosParcial = 0;
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
 
             // Obtener el enlace a la siguiente página de resultados
             url = obtenerSiguientePagina(url);
+
+            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
         }
         System.out.println("busqueda finalizada");
         return listado;
@@ -173,10 +186,13 @@ public class LibroServiceAsync {
     public List<Libro> getDatosLibroPorPalabraClave(String palabraClave) {
         String url = URL_BASE + PALABRA_CLAVE + palabraClave.replace(" ", "+");
         List<Libro> listado = new ArrayList<>();
+        cantidadResultadosParcial = 0;
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
             url = obtenerSiguientePagina(url);
+
+            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
         }
         System.out.println("busqueda finalizada");
         return listado;
@@ -187,10 +203,13 @@ public class LibroServiceAsync {
         tema = cate.getEnIngles();
         String url = URL_BASE + PALABRA_CLAVE + tema.replace(" ", "+");
         List<Libro> listado = new ArrayList<>();
+        cantidadResultadosParcial = 0;
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApiPorTema(url, cate.name());
             listado.addAll(lista);
             url = obtenerSiguientePagina(url);
+
+            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
         }
         System.out.println("busqueda finalizada");
         return listado;
@@ -198,10 +217,26 @@ public class LibroServiceAsync {
 
     public List<Libro> getDatosLibroMasDescargados() {
         List<Libro> listado = new ArrayList<>();
-        for (int i = 1; i < 5; i++) {
+        cantidadResultadosParcial = 0;
+        for (int i = 1; i < 6; i++) {
             String url = "https://gutendex.com/books/?page=" + i + "&sort=downloads";
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
+
+            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
+        }
+        return listado;
+    }
+
+    public List<Libro> getDatos10LibroMasDescargados() {
+        List<Libro> listado = new ArrayList<>();
+        cantidadResultadosParcial = 0;
+        for (int i = 1; i < 2; i++) {
+            String url = "https://gutendex.com/books/?page=" + i + "&sort=downloads";
+            List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
+            listado.addAll(lista);
+
+            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
         }
         return listado;
     }
@@ -209,10 +244,13 @@ public class LibroServiceAsync {
     public List<Libro> getDatosAutorVivoPorAño(Integer anio) {
         String url = "https://gutendex.com/books/?author_year_end=" + anio;
         List<Libro> listado = new ArrayList<>();
+        cantidadResultadosParcial = 0;
         while (url != null) {
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
             url = obtenerSiguientePagina(url);
+
+            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
         }
         System.out.println("busqueda finalizada");
         return listado;

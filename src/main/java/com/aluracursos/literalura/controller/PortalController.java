@@ -56,8 +56,10 @@ public class PortalController {
                 .limit(10)
                 .collect(Collectors.toList());
         
-        libroService.listar100LibrosMasDescargados();
-
+        if(masDescargados.isEmpty()){
+        libroService.listar10LibrosMasDescargados();
+        }
+        
         // Añadir los atributos al modelo
         model.addAttribute("librosEspanol", librosEspanol);
         model.addAttribute("autores", autores);

@@ -86,6 +86,30 @@ public class LibroService {
         serviceAsync.actualizarDatosLibrosMasDescargados();
         return resultado;
     }
+    
+    
+    public List<Libro> listar10LibrosMasDescargados() {
+
+        List<Libro> resultado = new ArrayList<>();
+        List<Libro> libros = libroRepo.findAll();
+        if (libros.isEmpty()) {
+            serviceAsync.getDatos10LibroMasDescargados();
+            resultado = libros.stream()
+                    .sorted(Comparator.comparing(Libro::getCantidadDescargas).reversed())
+                    .limit(10)
+                    .collect(Collectors.toList());
+        } else {
+            resultado = libros.stream()
+                    .sorted(Comparator.comparing(Libro::getCantidadDescargas).reversed())
+                    .limit(10)
+                    .collect(Collectors.toList());
+            if (resultado.isEmpty()) {
+                System.out.println("No se encontro ningun libro buscaremos en la api");
+            }
+        }
+        serviceAsync.actualizarDatosLibrosMasDescargados();
+        return resultado;
+    }
 
     public List<Libro> listarLibroPorTema(String tema) {
 

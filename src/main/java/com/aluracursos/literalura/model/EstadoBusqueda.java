@@ -1,13 +1,16 @@
 package com.aluracursos.literalura.model;
 
 public class EstadoBusqueda {
+
     private boolean busquedaEnCurso;
     private int cantidadResultados;
+    private int cantidadResultadosParcial;
     private String tipoBusqueda;
 
-    public EstadoBusqueda(boolean busquedaEnCurso, int cantidadResultados, String tipoBusqueda) {
+    public EstadoBusqueda(boolean busquedaEnCurso, int cantidadResultados, int cantidadResultadosParcial, String tipoBusqueda) {
         this.busquedaEnCurso = busquedaEnCurso;
         this.cantidadResultados = cantidadResultados;
+        this.cantidadResultadosParcial = cantidadResultadosParcial;
         this.tipoBusqueda = tipoBusqueda;
     }
 
@@ -27,6 +30,14 @@ public class EstadoBusqueda {
         this.cantidadResultados = cantidadResultados;
     }
 
+    public int getCantidadResultadosParcial() {
+        return cantidadResultadosParcial;
+    }
+
+    public void setCantidadResultadosParcial(int cantidadResultadosParcial) {
+        this.cantidadResultadosParcial = cantidadResultadosParcial;
+    }
+
     public String getTipoBusqueda() {
         return tipoBusqueda;
     }
@@ -34,6 +45,5 @@ public class EstadoBusqueda {
     public void setTipoBusqueda(String tipoBusqueda) {
         this.tipoBusqueda = tipoBusqueda;
     }
-    
-    
+
 }
