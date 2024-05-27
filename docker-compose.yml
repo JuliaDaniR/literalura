@@ -53,6 +53,15 @@ services:
       - literalura_bd
     restart: always
     
+  spring:
+  task:
+    execution:
+      pool:
+        core-size: 20
+        max-size: 100
+        keep-alive: 10s
+        queue-capacity: 500
+        allow-core-thread-timeout: true
 
 volumes:
     mysql-data:
