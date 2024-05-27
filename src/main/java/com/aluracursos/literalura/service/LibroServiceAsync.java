@@ -51,7 +51,7 @@ public class LibroServiceAsync {
         this.conversorAClaseLibroService = conversorAClaseLibroService;
     }
 
-    @Async
+    @Async("taskExecutor")
     public CompletableFuture<List<Libro>> actualizarDatosLibrosPorNombre(String nombreLibro) {
         return CompletableFuture.supplyAsync(() -> {
             busquedaEnCurso = true;
@@ -64,7 +64,7 @@ public class LibroServiceAsync {
         });
     }
 
-    @Async
+    @Async("taskExecutor")
     public CompletableFuture<List<Libro>> actualizarDatosLibrosMasDescargados() {
         return CompletableFuture.supplyAsync(() -> {
             busquedaEnCurso = true;
@@ -77,7 +77,7 @@ public class LibroServiceAsync {
         });
     }
 
-    @Async
+    @Async("taskExecutor")
     public CompletableFuture<List<Libro>> actualizarDatosLibrosPorLenguaje(String lenguajeLibro) {
         return CompletableFuture.supplyAsync(() -> {
             busquedaEnCurso = true;
@@ -91,7 +91,7 @@ public class LibroServiceAsync {
         });
     }
 
-    @Async
+    @Async("taskExecutor")
     public CompletableFuture<List<Libro>> actualizarDatosLibrosPorPalabraClave(String palabraClave) {
         return CompletableFuture.supplyAsync(() -> {
             busquedaEnCurso = true;
@@ -104,7 +104,7 @@ public class LibroServiceAsync {
         });
     }
 
-    @Async
+    @Async("taskExecutor")
     public CompletableFuture<List<Libro>> actualizarDatosLibrosPorTema(String tema) {
         return CompletableFuture.supplyAsync(() -> {
             busquedaEnCurso = true;
@@ -117,7 +117,7 @@ public class LibroServiceAsync {
         });
     }
 
-    @Async
+    @Async("taskExecutor")
     public CompletableFuture<List<Libro>> actualizarDatosAutoresVivosPorAnio(Integer anio) {
         return CompletableFuture.supplyAsync(() -> {
             busquedaEnCurso = true;
