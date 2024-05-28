@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+            />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@200;400;700&display=swap"
+            rel="stylesheet"
+            />
+        <link href="https://fonts.googleapis.com/css2?family=Modern+Antiqua&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+              integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
+        <link rel="stylesheet" type="text/css" th:href="@{/css/home.css}" />
+        <title>Literalura - Nuestra selección de Libros</title>
+    </head>
+    <body>
+        <header class="header">
+            <div class="header__logo">
+                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura" style='padding-top: 3rem;'></a>
+            </div>
+            <div class="header__opciones">
+                <div class="container-todo-filtro">
+                    <div class="container-btn-filtro">
+                        <button class="btn-principal" onclick="VerOpcionesFiltradoLibros()">Filtros</button>
+                    </div>
+                    <form id="filtrosFormLibro" class="filtrosFormLibro cuadro-con-borde" style="display: none; border-image-source: url('/img/color2.jpg');" method="get" th:action="@{/libros/listar}">
+                        <div class="container-checkbox-filtro" style="display: flex;">
+                            <div style="border-right: 1px solid whitesmoke; padding: 0.3rem 1rem">
+                                <h3 style="margin-top: 2rem">Libro</h3>
+                                <div>
+                                    <label for="buscarPorNombre">Buscar libro por nombre</label>
+                                    <input type="checkbox" id="buscarPorNombre" onclick="toggleFiltro('buscarPorNombre'); toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="buscarPorPalabraClave">Buscar libro por palabra clave</label>
+                                    <input type="checkbox" id="buscarPorPalabraClave" onclick="toggleFiltro('buscarPorPalabraClave'); toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="buscarPorInicial">Buscar todos los libros por inicial</label>
+                                    <input type="checkbox" id="buscarPorInicial" onclick="toggleFiltro('buscarPorInicial'); toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="buscarPorCategoria">Buscar libro por categoría</label>
+                                    <input type="checkbox" id="buscarPorCategoria" onclick="toggleFiltro('buscarPorCategoria'); toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="buscarPorIdioma">Buscar libro por idioma</label>
+                                    <input type="checkbox" id="buscarPorIdioma" onclick="toggleFiltro('buscarPorIdioma'); toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="masPopulares">Mostrar libros más descargados</label>
+                                    <input type="checkbox" id="masPopulares" onclick="toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="librosGuardados">Mostrar libros guardados</label>
+                                    <input type="checkbox" id="librosGuardados" onclick="toggleLabelColor(this);">
+                                </div>     
+                                <div>
+                                    <label for="librosEliminados">Ver libros Eliminados</label>
+                                    <input type="checkbox" id="librosEliminados" onclick="toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="librosFavoritos">Ver lista de Favoritos</label>
+                                    <input type="checkbox" id="librosFavoritos" onclick="toggleLabelColor(this);">
+                                </div>
+                                <input type="hidden" id="ordenMasPopulares" name="masPopulares" value="">
+                                <input type="hidden" id="ordenLibrosGuardados" name="librosGuardados" value="">
+                                <input type="hidden" id="ordenLibrosEliminados" name="librosEliminados" value="">
+                                <input type="hidden" id="ordenLibrosFavoritos" name="librosFavoritos" value="">
+                            </div>
+                            <div style="padding: 0.3rem 1rem">
+                                <h3 style="margin-top: 2rem">Autor</h3>
+                                <div>
+                                    <label for="listarAutores">Ver todos los autores</label>
+                                    <input type="checkbox" id="listarAutores" onclick="toggleLabelColor(this);">
+                                </div>
+                                <input type="hidden" id="ordenListarAutores" name="listarAutores" value="">
+                                <div>
+                                    <label for="buscarPorNombreAutor">Buscar libros por autor</label>
+                                    <input type="checkbox" id="buscarPorNombreAutor" onclick="toggleFiltro('buscarPorNombreAutor'); toggleLabelColor(this);">
+                                </div>
+                                <div>
+                                    <label for="buscarPorAnio">Listar libros por autores vivos en determinado año</label>
+                                    <input type="checkbox" id="buscarPorAnio" onclick="toggleFiltro('buscarPorAnio'); toggleLabelColor(this);">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container-filtro">
+                            <div class="filtroPorNombre" style="display: none">
+                                <label for="nombre">Nombre del libro</label>
+                                <input type="text" class="form-control" placeholder="Ingresa el título" id="nombre" name="nombre">
+                            </div>
+                            <div class="filtroPorPalabraClave" style="display: none">
+                                <label for="palabraClave">Palabra clave</label>
+                                <input type="text" class="form-control" placeholder="Ingresa la palabra clave" id="palabraClave" name="palabraClave">
+                            </div>
+                            <div class="filtroPorInicial" style="display: none">
+                                <label for="inicial">Inicial del libro</label>
+                                <input type="text" class="form-control" placeholder="Ingresa la inicial del libro" id="inicial" name="inicial">
+                            </div>
+                            <div class="filtroPorCategoria" style="display: none">
+                                <label for="tipoCategoria">Categoría</label>
+                                <select name="tipoCategoria" id="tipoCategoria">
+                                    <option value="">Todas</option>
+                                    <option th:each="tipoCategoria : ${tipos}" th:value="${tipoCategoria}" th:text="${tipoCategoria.enEspañol}"> </option>
+                                </select>
+                            </div>
+                            <div class="filtroPorIdioma" style="display: none">
+                                <label for="idioma">Selecciona Idioma</label>
+                                <select id="idioma" name="idioma">
+                                    <option value="">Lenguajes</option>
+                                    <option th:each="idioma : ${lenguajes}" th:value="${idioma}" th:text="${idioma.languageName}"> </option>
+                                </select>
+                            </div>
+                            <div class="filtroPorNombreAutor" style="display: none">
+                                <label for="nombreAutor">Nombre del Autor</label>
+                                <input type="text" class="form-control" placeholder="Ingresa el nombre del autor" id="nombreAutor" name="nombreAutor">
+                            </div>
+                            <div class="filtroPorAnio" style="display: none">
+                                <label for="anio">Año</label>
+                                <input type="number" class="form-control" placeholder="Ingresa el año" id="anio" name="anio">
+                            </div>
+                        </div>
+                        <div class="container-btn-filtro">
+                            <button type="button" style="background-color: #0d4645;" onclick="applyFilters()">Buscar</button>
+                            <button type="button" style="background-color: #d51a1af1;" onclick="limpiarFiltrosLibro()">Limpiar Filtro</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </header>
+        <div id="resultadoBusqueda" style="display: none;">
+            <!-- Contenido del resultado de búsqueda aquí -->
+            <span id="mensaje"></span>
+            <button id="cerrar" onclick="cerrarResultado()" style="margin-top: 1.5rem;">Cerrar</button>
+        </div> <main>
+            <section class="section bienvenida">
+                <h1>Bienvenidos a Nuestra Aplicación de Literatura</h1>
+                <p>Estamos encantados de presentarte nuestra aplicación de literatura, un portal donde la pasión por los libros se encuentra con la tecnología. Nuestra plataforma está conectada a una API que ofrece una vasta colección de libros en diversos idiomas y géneros, asegurando que siempre encuentres algo que te apasione.</p>
+                <p>Explora nuestra selección cuidadosamente curada de títulos, descubre los libros más descargados y disfruta de obras en tu idioma preferido. Además, conoce más sobre tus autores favoritos con enlaces directos a sus biografías.</p>
+                <p>Ya sea que busques los últimos bestsellers, clásicos atemporales, o libros en español, nuestra aplicación está aquí para satisfacer tus deseos literarios. ¡Feliz lectura!</p>
+            </section>
+            <section>
+                <div style="display: flex ; align-items: center; flex-wrap: wrap; justify-content: center">
+                    <div class='pergamino'>
+                        <p>"La literatura es el arte más antiguo y el más nuevo, el más constante y el más mutable, el más respetable y el más subversivo de todos." - Mario Vargas Llosa</p>  
+                    </div>
+                    <div class="pergamino">
+                        <p>"Un libro, como un viaje, se comienza con inquietud y se termina con melancolía." - José Vasconcelos</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"La literatura es una de las formas más interesantes de la soledad." - Mario Benedetti</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"La lectura de un buen libro es un diálogo incesante en que el libro habla y el alma contesta." - André Maurois</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"La literatura es el arte de descubrir algo extraordinario en lo ordinario y de decir cosas extraordinarias con palabras ordinarias." - Boris Pasternak</p>             
+                    </div>
+                    <div class="pergamino">
+                        <p>"Los libros son espejos: solo ves en ellos lo que ya llevas dentro." - Carlos Ruiz Zafón</p>             
+                    </div>
+                </div>
+            </section>
+            <section class="section">
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color1.avif');">
+                    <h1 style="margin: 3rem auto; color: black">Nuestra selección de Libros</h1>
+                    <h3>Descubre nuestra cuidada selección de libros que hemos preparado para ti. Aquí encontrarás una variedad de títulos que abarcan distintos géneros y autores, cuidadosamente seleccionados para tu disfrute.</h3>
+
+                </div>
+                <ul class="lista">
+                    <li th:each="libro : ${libros}" class="section_libros"  th:if="${libro.estado}">
+                        <a th:href="@{/libros/detalles/__${libro.id}__}">
+                            <div class="imagen-contenedor">
+                                <div class="favorito-contenedor">
+                                    <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
+                                          th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
+                                </div>
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
+                            </div>
+                        </a>
+                        <div class="titulo-overlay">
+                            <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
+                            <span>
+                                <span th:text="'De: '"></span>
+                                <span th:each="autor, iterStat : ${libro.autores}">
+                                    <span th:text="${autor.nombre}"></span>
+                                    <span th:if="${!iterStat.last}">, </span> <!-- Añade una coma si no es el último elemento -->
+                                </span>
+                            </span><br>
+                            <span th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></span>
+                        </div>
+                        <div class="boton-eliminar-contenedor">
+                            <form th:action="@{/libros/eliminar/__${libro.id}__}" method="get">                                        
+                                <button type="submit" class="eliminar-icono">Quitar</button>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+            <section data-name="top20" class="section">
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color3.jpg');">
+                    <h1 style="margin: 3rem auto; color: black">Libros más descargados</h1>
+                    <h3>Explora los libros que están en la cima de las listas de descargas. Estos son los títulos más populares y leídos por nuestra comunidad.</h3>
+                </div>
+                <ul class="lista">
+                    <li th:each="libro : ${masDescargados}" class="section_libros" th:if="${libro.estado}">
+                        <a th:href="@{/libros/detalles/__${libro.id}__}">
+                            <div class="imagen-contenedor">
+                                <div class="favorito-contenedor">
+                                    <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
+                                          th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
+                                </div>
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
+                            </div>
+                        </a>
+                        <div class="titulo-overlay">
+                            <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
+                            <span>
+                                <span th:text="'De: '"></span>
+                                <span th:each="autor, iterStat : ${libro.autores}">
+                                    <span th:text="${autor.nombre}"></span>
+                                    <span th:if="${!iterStat.last}">, </span> <!-- Añade una coma si no es el último elemento -->
+                                </span>
+                            </span><br>
+                            <span th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></span>
+                        </div>
+                        <div class="boton-eliminar-contenedor">
+                            <form th:action="@{/libros/eliminar/__${libro.id}__}" method="get">                                        
+                                <button type="submit" class="eliminar-icono">Quitar</button>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+            <section data-name="espanol" class="section">
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color1.jpg');">
+                    <h1 style="margin: 3rem auto; color: black">Libros en español</h1>
+                    <h3>Nuestra colección de libros en español ofrece una amplia variedad de títulos para todos los gustos. Sumérgete en la riqueza de la literatura hispana.</h3>
+                </div>
+                <ul class="lista">
+                    <li th:each="libro : ${librosEspanol}" class="section_libros" th:if="${libro.estado}">
+                        <a th:href="@{/libros/detalles/__${libro.id}__}">
+                            <div class="imagen-contenedor">
+                                <div class="favorito-contenedor">
+                                    <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
+                                          th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
+                                </div>
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
+                            </div>
+                        </a>
+                        <div class="titulo-overlay">
+                            <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
+                            <span>
+                                <span th:text="'De: '"></span>
+                                <span th:each="autor, iterStat : ${libro.autores}">
+                                    <span th:text="${autor.nombre}"></span>
+                                    <span th:if="${!iterStat.last}">, </span> <!-- Añade una coma si no es el último elemento -->
+                                </span>
+                            </span><br>
+                            <span th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></span>
+                        </div>
+                        <div class="boton-eliminar-contenedor">
+                            <form th:action="@{/libros/eliminar/__${libro.id}__}" method="get">                                        
+                                <button type="submit" class="eliminar-icono">Quitar</button>
+                            </form>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+            <section data-name="espanol" class="section">
+                <div class="cuadro-con-borde" style="border-image-source: url('/img/color2.jpg');">
+                    <h1 style="margin: 3rem auto; color: black">Biografía de los autores</h1>
+                    <h3>Conoce más sobre los autores de tus libros favoritos. Aquí puedes encontrar enlaces a sus biografías y descubrir más sobre sus vidas y obras.</h3>
+                </div>
+                <ul class="lista-autor">
+                    <li th:each="autor : ${autores}">
+                        <div class="autor">
+                            <!-- Construir el enlace -->
+                            <a th:href="'https://es.wikipedia.org/wiki/' + ${autor.nombre}" target="_blank" >          
+                                <h2 th:text="${#strings.replace(autor.nombre, '_', ' ')}"></h2>
+                            </a>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+        </main>
+        <footer id="contacto">
+            <div class="footer">
+                <div class="contain-redes flex gap-x-4">
+                    <i class="bi bi-github" style="font-size: 28px;"></i>
+                    <i class="bi bi-twitter" style="font-size: 28px;"></i>
+                    <i class="bi bi-facebook" style="font-size: 28px;"></i>
+                </div>
+                <div class="mt-4">
+                    <p class="text-[25px] font-bold capitalize">&#9400; copyright - 2024</p>
+                    <small class="mt-1.5 font-semibold">Elaborado por Julia Rodriguez</small>
+                </div>              
+            </div>
+        </footer>
+        <script>
+            function VerOpcionesFiltradoLibros() {
+                const filtrosForm = document.getElementById('filtrosFormLibro');
+                filtrosForm.style.display = 'flex';
+                filtrosForm.style.flexDirection = 'column';
+                filtrosForm.style.boxShadow = '4px 6px 8px rgba(255, 255, 255, 0.7)';
+            }
+
+            function limpiarFiltrosLibro() {
+                const filtrosFormLibro = document.getElementById('filtrosFormLibro');
+                filtrosFormLibro.reset();
+                document.querySelectorAll('.container-filtro > div').forEach(filtro => {
+                    filtro.style.display = 'none';
+                    filtro.style.background = ''; // Reset background
+                });
+                document.querySelectorAll('.container-checkbox-filtro input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.disabled = false;
+                    toggleLabelColor(checkbox);
+                });
+                filtrosFormLibro.style.display = 'none';
+            }
+
+            function toggleLabelColor(checkbox) {
+                const label = document.querySelector(`label[for='${checkbox.id}']`);
+                if (checkbox.checked) {
+                    label.style.background = 'radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%)';
+                    label.style.color = 'black';
+                    label.style.borderRadius = '20px';
+                    label.style.padding = '0 .5rem';
+                } else {
+                    label.style.color = 'hsl(22, 100%, 14%)';
+                    label.style.background = '';
+                }
+            }
+
+            function toggleFiltro(selectedCheckboxId) {
+                const selectedCheckbox = document.getElementById(selectedCheckboxId);
+                const checkboxes = document.querySelectorAll('.container-checkbox-filtro input[type="checkbox"]');
+                const filtros = document.querySelectorAll('.container-filtro > div');
+
+                // Ocultar todos los filtros y resetear el fondo
+                filtros.forEach(filtro => {
+                    filtro.style.display = 'none';
+                    filtro.style.background = ''; // Reset background
+                });
+
+                // Deshabilitar/rehabilitar otros checkboxes y cambiar el color del label
+                checkboxes.forEach(checkbox => {
+                    if (checkbox.id !== selectedCheckboxId) {
+                        checkbox.disabled = selectedCheckbox.checked;
+                        toggleLabelColor(checkbox);
+                    }
+                });
+
+                // Mostrar el filtro correspondiente al checkbox seleccionado si está marcado
+                if (selectedCheckbox.checked) {
+                    const filtroToShow = document.querySelector(`.${selectedCheckboxId.replace('buscar', 'filtro')}`);
+                    if (filtroToShow) {
+                        filtroToShow.style.display = 'block';
+                        filtroToShow.style.background = 'radial-gradient(circle, rgba(238,174,202,1) 0%, rgba(148,187,233,1) 100%)';
+                        filtroToShow.style.border = '1px solid lightpink';
+                        filtroToShow.style.padding = '.5rem';
+                        filtroToShow.style.borderRadius = '20px';
+                        filtroToShow.style.color = 'black';
+                        filtroToShow.style.fontSize = '1.5rem';
+                        filtroToShow.style.fontWeight = 'bold';
+                        filtroToShow.style.margin = '2rem 0';
+
+                        // Limpiar el campo de entrada cuando se muestra el filtro
+                        const inputs = filtroToShow.querySelectorAll('input, select');
+                        inputs.forEach(input => {
+                            input.value = '';
+                        });
+                    }
+                }
+            }
+
+            function applyFilters() {
+                const formLibro = document.getElementById('filtrosFormLibro');
+                const checkboxesLibro = formLibro.querySelectorAll('.container-checkbox-filtro input[type="checkbox"]');
+
+                checkboxesLibro.forEach(checkbox => {
+                    const filtroClass = checkbox.id.replace('buscar', 'filtro');
+                    const filtros = formLibro.getElementsByClassName(filtroClass);
+                    for (let i = 0; i < filtros.length; i++) {
+                        const inputs = filtros[i].querySelectorAll('input, select');
+                        inputs.forEach(input => {
+                            input.disabled = !checkbox.checked;
+                        });
+                    }
+                });
+
+                const librosGuardadosCheckbox = document.getElementById('librosGuardados');
+                const masPopularesCheckbox = document.getElementById('masPopulares');
+                const librosEliminadosCheckbox = document.getElementById('librosEliminados');
+                const librosFavoritosCheckbox = document.getElementById('librosFavoritos');
+                const listarAutoresCheckbox = document.getElementById('listarAutores');
+                const listarAutoresSelect = document.getElementById('ordenListarAutores');
+                const librosGuardadosSelect = document.getElementById('ordenLibrosGuardados');
+                const librosEliminadosSelect = document.getElementById('ordenLibrosEliminados');
+                const librosFavoritosSelect = document.getElementById('ordenLibrosFavoritos');
+                const masPopularesSelect = document.getElementById('ordenMasPopulares');
+
+                librosGuardadosSelect.value = librosGuardadosCheckbox.checked ? "librosGuardados" : "";
+                masPopularesSelect.value = masPopularesCheckbox.checked ? "masPopulares" : "";
+                listarAutoresSelect.value = listarAutoresCheckbox.checked ? "listarAutores" : "";
+                librosEliminadosSelect.value = librosEliminadosCheckbox.checked ? "librosEliminados" : "";
+                librosFavoritosSelect.value = librosFavoritosCheckbox.checked ? "librosFavoritos" : "";
+
+                formLibro.submit();
+                limpiarFiltrosLibro(); // Limpiar los filtros después de enviar el formulario
+            }
+        </script>
+        <script>
+
+            let intervaloActualizacion;
+
+            function actualizarMensaje() {
+                fetch('/estadoBusqueda')
+                        .then(response => response.json())
+                        .then(data => {
+                            const mensaje = document.getElementById('mensaje');
+                            const resultadoBusqueda = document.getElementById('resultadoBusqueda');
+
+                            if (data.busquedaEnCurso) {
+                                resultadoBusqueda.style.display = 'flex';
+                                mensaje.innerText = 'Buscando... \n Hasta ahora se han encontrado ' + data.cantidadResultadosParcial + ' resultados.';
+                                // Inicia el intervalo solo si aún no ha sido iniciado
+                                if (!intervaloActualizacion) {
+                                    intervaloActualizacion = setInterval(actualizarMensaje, 2000);
+                                }
+                            } else {
+                                if (data.cantidadResultados > 0) {
+                                    mensaje.innerText = 'La búsqueda ha finalizado. \nSe encontraron ' + data.cantidadResultados + ' resultados.' + '\nPara la busqueda de ' + data.tipoBusqueda;
+
+                                } else {
+                                    mensaje.innerText = 'La búsqueda ha finalizado. \nNo se encontraron resultados.';
+                                }
+                                resultadoBusqueda.style.display = 'flex'; // Mostrar el resultado de búsqueda
+                                // Detener el intervalo cuando la búsqueda haya finalizado
+                                if (intervaloActualizacion) {
+                                    clearInterval(intervaloActualizacion);
+                                    intervaloActualizacion = null; // Restablecer la variable del intervalo
+                                }
+                            }
+                        })
+                        .catch(error => console.error('Error al obtener el estado de la búsqueda:', error));
+            }
+
+            function cerrarResultado() {
+                const resultadoBusqueda = document.getElementById('resultadoBusqueda');
+                resultadoBusqueda.style.display = 'none'; // Ocultar el resultado de búsqueda al hacer clic en el botón "Cerrar"
+            }
+
+            actualizarMensaje(); // Comienza el proceso de actualización del mensaje al cargar la página
+        </script>
+        <script>
+            function toggleFavorito(libroId) {
+                fetch(`/libros/favorito/${libroId}`, {
+                    method: 'POST'
+                })
+                        .then(response => {
+                            if (response.ok) {
+                                location.reload(); // Recargar la página para reflejar el cambio
+                            } else {
+                                console.error('Error al actualizar el favorito');
+                            }
+                        });
+            }
+        </script>
+    </body>
+
+</html>

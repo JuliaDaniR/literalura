@@ -14,21 +14,6 @@ services:
     depends_on:
       - literalura_pg
 
-  literalura_bd:
-    container_name: "literalura_db"
-    image: mysql:8.3.0
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: root
-      MYSQL_DATABASE: literalura
-    restart: always
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 10s
-      retries: 10
-
   literalura_pg:
     container_name: "literalura_pg"
     image: postgres:latest
@@ -39,20 +24,6 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
     restart: always
-    
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: literalura_bd
-      PMA_USER: root
-      PMA_PASSWORD: root
-    depends_on:
-      - literalura_bd
-    restart: always
 
 volumes:
-    mysql-data:
     postgres-data:  

@@ -1,0 +1,640 @@
+body {
+
+    background: hsl(22, 100%, 14%);
+    background: linear-gradient(90deg, hsl(22, 100%, 14%) 0%, hsla(9, 59%, 7%, 1) 100%);
+    background: -moz-linear-gradient(90deg, hsl(22, 100%, 14%) 0%, hsla(9, 59%, 7%, 1) 100%);
+    background: -webkit-linear-gradient(90deg, hsl(22, 100%, 14%) 0%, hsla(9, 59%, 7%, 1) 100%);
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family:"Roboto", sans-serif;
+}
+
+.hidden {
+    display: none;
+}
+
+select,
+option {
+    background-color: black;
+    color: white;
+    font-size: 24px;
+    padding: 0 1em;
+    max-width: 180px;
+}
+
+select {
+    border: none;
+    outline: none;
+}
+
+
+h2 {
+    color: white;
+}
+
+main {
+    padding: 0 3em;
+    height: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    padding: 1em;
+    flex-wrap: wrap;
+}
+
+.header__logo {
+    display: flex;
+    gap: 1em;
+}
+
+.header__logo img {
+    width: 350px;
+    height: 250px;
+    box-shadow: 3px 6px 8px rgba(0,0,0,0.5);
+    background-image: url("/img/fondo-logo2.jpg");
+    background-size: cover;
+    background-position:top;
+    border-radius: 50%;
+}
+.header__logo select{
+    width: 250px;
+    max-height: 50px;
+}
+.header__opciones{
+    display: flex;
+    color: antiquewhite;
+    margin-right: 2rem;
+}
+.header__opciones .container-todo-filtro{
+    margin: 2rem 3rem;
+}
+/* Ocultar el cuadro del checkbox */
+.container-checkbox-filtro input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+.container-checkbox-filtro{
+    display: flex;
+    justify-content: space-between;
+}
+
+.filtrosFormLibro{
+    padding: .5rem;
+    margin:1rem;
+    text-align: center;
+    width: 100%;
+    line-height: 3rem;
+    border-image-width: 10px;
+    color: black;
+}
+
+.container-btn-filtro{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-bottom: 3rem;
+    font-size: 1.4rem;
+}
+.contain{
+    display: flex;
+    justify-content: space-around;
+}
+
+.container-btn-filtro button:not(.btn-principal){
+    margin-left: 2rem;
+    color: whitesmoke;
+    border-radius: 20px;
+    padding: .2rem .5rem;
+    font-weight: bold;
+    margin-top: 2rem;
+}
+.container-btn-filtro button:not(.btn-principal):hover{
+    background: linear-gradient(90deg, rgba(26,154,175,1) 0%, rgba(148,233,188,1) 100%);
+    color: black;
+}
+
+.container-btn-filtro .btn-principal{
+    padding: .3rem;
+    background-image: url("/img/color2.jpg");
+    color: whitesmoke;
+    border: 1px solid whitesmoke;
+    font-size: 2rem;
+    border-radius: 20px;
+}
+.bienvenida {
+    padding: 2rem;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 2rem;
+    margin-top: 5rem;
+}
+
+.bienvenida h1 {
+    font-size: 2.5rem;
+    color: hsl(22, 100%, 14%);
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.bienvenida p {
+    font-size: 1.2rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.section{
+    text-align: center;
+}
+.section h1, h3{
+    color: hsl(22, 100%, 14%);
+    font-weight: bold;
+    margin-bottom: 3rem;
+}
+
+.cuadro-con-borde {
+    background: hsla(71, 80%, 72%, 1);
+    background: linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    background: -moz-linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    background: -webkit-linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    border: 10px solid transparent; /* Ancho del borde y color de respaldo */
+    border-image-slice: 30; /* Ajusta este valor según el diseño de tu imagen */
+    border-image-width: 30px; /* Ajusta el ancho del borde según tus necesidades */
+    border-image-outset: 0; /* Ajusta si quieres extender el borde más allá del contenedor */
+    border-image-repeat: stretch; /* Cómo se repetirá la imagen (stretch, repeat, round, space) */
+    padding: 20px; /* Espaciado interno */
+}
+
+
+.lista {
+    list-style-type: none;
+    margin: 3rem 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1em;
+}
+
+.lista li img {
+    width: 250px;
+    height: 380px;
+    box-shadow: 17px 16px 19px -6px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 17px 16px 19px -6px rgba(0,0,0,0.75);
+    -moz-box-shadow: 17px 16px 19px -6px rgba(0,0,0,0.75);
+}
+
+.pesquisa {
+
+    min-height: 100vh;
+}
+.lista-autor{
+    list-style-type: none;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 3rem ;
+}
+
+.autor{
+    background: hsla(71, 80%, 72%, 1);
+    background: linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    background: -moz-linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    background: -webkit-linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    padding: 4rem;
+    border-radius: 50%;
+    margin: 1rem 1rem;
+    box-shadow: 3px 6px 8px rgba(0,0,0,0.5);
+    border: 4px groove lightskyblue;
+    cursor: pointer;
+    text-align: center;
+}
+.autor:hover, .autor h2:hover{
+    background:radial-gradient(circle, rgba(240,231,21,1) 0%, rgba(177,104,28,0.8516332413200662) 100%);
+    color: white;
+}
+.autor h2{
+    font-size: 2rem;
+    font-weight: bold;
+    color: black;
+    text-shadow: 3px 6px 8px rgba(0,0,0,0.5);
+}
+
+ul.lista-autor li a {
+    text-decoration: none;
+}
+
+.section_libros {
+    border: 6px double lightyellow;
+    padding: 1rem 5rem 2rem 5rem;
+    border-radius: 40px;
+    width: 100%;
+    max-width: 380px;
+    background: radial-gradient(circle, rgba(157,110,31,1) 1%, rgba(4,2,1,0.8516332413200662) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Asegura que el contenido esté separado */
+    align-items: center;
+    position: relative; /* Necesario para el posicionamiento absoluto del botón */
+}
+
+.imagen-contenedor {
+    position: relative;
+    display: inline-block; /* Ajusta el tamaño del contenedor según la imagen */
+}
+
+.titulo-overlay {
+    width: 180%; /* Ancho igual al contenedor */
+    background-color: rgba(0, 0, 0, 0.6); /* Fondo semitransparente */
+    color: white; /* Color del texto */
+    padding: 1rem; /* Espaciado interno */
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-radius: 30px;
+    margin-top: 3rem;
+}
+
+.boton-eliminar-contenedor {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+}
+
+.eliminar-icono {
+    background-color: rgba(255, 0, 0, 0.5);
+    color: white;
+    border-radius: 50%;
+    padding: .5rem;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px; /* Ajusta el tamaño del icono según tus necesidades */
+}
+
+
+.ficha-descripcion{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    border: 7px groove whitesmoke;
+    width: 70%;
+    margin: 3rem auto;
+    padding: 1.5rem;
+    background: hsla(71, 80%, 72%, 1);
+    background: linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    background: -moz-linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    background: -webkit-linear-gradient(90deg, hsla(71, 80%, 72%, 1) 0%, hsla(36, 75%, 77%, 1) 50%, hsla(220, 45%, 37%, 1) 100%);
+    box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -webkit-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    color: black;
+}
+
+.ficha-descripcion img{
+    width: 150%;
+    padding: 2rem;
+    margin-left: 2rem;
+    margin:  0 auto;
+}
+.ficha-descripcion h4{
+    color: #0d4645;
+    font-weight: bold;
+}
+.ficha-descripcion h1{
+    color: whitesmoke;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 7px groove #0d4645;
+    padding-bottom: 2rem;
+}
+
+.formatos-contain{
+    display: flex;
+    justify-content: space-evenly;
+}
+.formatos-contain a{
+    text-decoration: none;
+    border: 7px groove whitesmoke;
+    background: rgb(226,228,161);
+    background: radial-gradient(circle, rgba(226,228,161,1) 1%, rgba(229,157,103,0.8516332413200662) 100%);
+    padding: 1.5rem;
+    box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -webkit-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 8rem;
+    color: hsl(22, 100%, 14%);
+}
+.formatos-contain a:hover{
+    color: black;
+}
+
+label {
+    border-bottom: 1px solid whitesmoke;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.mensajeResultado{
+
+    border: 7px groove #0d4645;
+    padding: 1.5rem;
+    box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -webkit-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    -moz-box-shadow: -1px -3px 119px 33px rgba(0,0,0,0.75) inset;
+    box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -webkit-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 14px 10px 25px 0px rgba(0,0,0,0.75);
+    font-size: 2rem;
+    font-weight: bold;
+    background: rgb(226,228,161);
+    background: radial-gradient(circle, rgba(226,228,161,1) 1%, rgba(229,157,103,0.8516332413200662) 100%);
+    margin-bottom: 8rem;
+    color: #62717a;
+}
+.mensajeResultado a{
+    text-decoration: none;
+    color: black;
+}
+
+#resultadoBusqueda{
+    background: rgba(12,62,22,0.7);
+    width: 20%;
+    position: fixed;
+    margin-left: 3rem;
+    font-size: 1.4rem;
+    padding: 2rem;
+    border: 2px solid white;
+    align-content: space-between;
+    flex-direction: column;
+}
+
+.pergamino {
+    background-color: #f9e5d8;
+    border: 8px solid #a9856d;
+    padding: 2rem;
+    margin: 10px;
+    font-family: 'Modern Antiqua', Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 200px;
+    color: black;
+    height: max-content;
+    z-index: 2;
+}
+.pergamino:nth-child(1) {
+    border-radius: 20px 40px;
+}
+
+.pergamino:nth-child(2) {
+    border-radius: 30px 10px;
+}
+
+.pergamino:nth-child(3) {
+    border-radius: 80%;
+}
+
+.pergamino:nth-child(4) {
+    border-radius: 30px 50px;
+}
+
+.pergamino:nth-child(5) {
+    border-radius: 50%;
+}
+
+.pergamino:nth-child(6) {
+    border-radius: 10px 30px;
+}
+
+.pergamino:nth-child(7) {
+    border-radius: 60px 10px;
+}
+/* Estilos básicos para la tabla */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 18px;
+    text-align: left;
+}
+
+.table th, .table td {
+    padding: 12px 15px;
+    border: 4px solid black;
+}
+
+.table th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+.table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table th, .table td {
+    text-align: center;
+}
+
+.table tr {
+    transition: all 0.2s ease-in-out;
+}
+
+.table tr th{
+    border: 4px groove crimson;
+    background: crimson;
+    color: white;
+    font-weight: bold
+}
+
+#contacto .footer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 80%;
+    text-align: center;
+    padding: 1rem;
+    font-weight: bold;
+    background-color: rgba(170, 72, 223, 0.4);
+}
+
+#contacto .contain-redes {
+    display: flex;
+    column-gap: 1rem; /* 16px */
+    margin-bottom: 1rem;
+}
+
+#contacto .footer p {
+    font-size: 25px;
+    font-weight: 700;
+    text-transform: capitalize;
+    margin-bottom: .5rem;
+}
+
+.imagen-contenedor {
+    position: relative;
+    display: inline-block;
+}
+
+.favorito-contenedor {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 10;
+}
+
+.favorito-lleno {
+    color: yellow;
+    border: 2px solid black;
+    background: black;
+    border-radius: 50%;
+}
+
+.favorito-vacio {
+    color: #0d4645;
+}
+
+.favorito-contenedor span {
+    font-size: 40px;
+    cursor: pointer;
+}
+h3{
+    font-size: 3rem;
+    color: #0d4645
+}
+
+
+@media screen and (max-width: 550px) {
+    h1, h2 {
+        font-size: 2rem;
+    }
+    .ficha-descripcion {
+        width: 100%;
+        padding: .5rem;
+    }
+    .ficha-descripcion img {
+        width: 100%;
+    }
+    .lista li img {
+        width: 150%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+    .formatos-contain {
+        flex-wrap: wrap;
+    }
+    .formatos-contain a {
+        margin-bottom: 2rem;
+        color: #d5e1e8;
+    }
+    .header__logo {
+        width: 100%;
+    }
+    .header__logo img {
+        width: 250px;
+        height: 150px;
+    }
+    .header {
+        justify-content: center;
+    }
+    .autor {
+        padding: 2rem;
+        margin: 1rem auto;
+    }
+    .lista-autor {
+        margin: 0rem;
+        justify-content: center;
+    }
+    .filtrosFormLibro {
+        padding: .5rem;
+        margin: 1rem;
+    }
+    select, option {
+        font-size: 14px;
+        padding: 0 1em;
+        max-width: 150px;
+    }
+    label {
+        border-bottom: 1px solid whitesmoke;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+    .titulo-overlay {
+        width: 130%;
+        font-size: .8rem;
+    }
+    .imagen-contenedor {
+        position: relative;
+        display: flex;
+        justify-content: center;
+    }
+    .favorito-contenedor {
+        right: -10px;
+    }
+    #resultadoBusqueda {
+        width: 70%;
+        font-size: 1rem;
+        position: sticky;
+    }
+    .cuadro-con-borde{
+        position: relative;
+        border-image-width: 10px;
+    }
+    .lista {
+        justify-content: center;
+    }
+    .section_libros{
+        width: 90%;
+        padding: 1rem 3rem 2rem 3rem;
+    }
+    h3{
+        font-size: 2rem;
+        color: #0d4645;
+    }
+    .container-checkbox-filtro {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .container-btn-filtro button:not(.btn-principal) {
+        font-size: .8rem;
+        margin-left: .3rem;
+    }
+}
+
+@media screen and (max-width: 1600px) {
+    .ficha-descripcion{
+        width: 40%;
+        flex-direction: column;
+    }
+    .formatos-contain {
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        margin: 1rem 5rem;
+    }
+    .lista {
+        overflow: hidden;
+        overflow-x: scroll;
+    }
+    .ficha-descripcion img {
+        width: 120%;
+    }
+}
