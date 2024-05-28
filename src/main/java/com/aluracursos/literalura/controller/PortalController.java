@@ -55,11 +55,7 @@ public class PortalController {
                 .sorted(Comparator.comparingInt(Libro::getCantidadDescargas).reversed())
                 .limit(10)
                 .collect(Collectors.toList());
-        
-        if(masDescargados.isEmpty()){
-        libroService.listar10LibrosMasDescargados();
-        }
-        
+
         // Añadir los atributos al modelo
         model.addAttribute("librosEspanol", librosEspanol);
         model.addAttribute("autores", autores);
