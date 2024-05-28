@@ -10,6 +10,9 @@ Este proyecto fue realizado para cumplir con el Challenge de Spring del programa
 - Descarga, ve en línea o escucha audiolibros.
 - Métodos asincrónicos para consultas rápidas a la API.
 - Recorrido completo de las más de 2900 páginas de la API.
+- Puedes buscar a través de diferentes filtros.
+- Tambien puedes eliminar libros para que ya no aparezcan en tus búsquedas
+- Puedes guardar tus favoritos
 ## Entidades y sus Vinculaciones
 
 ### Libro
