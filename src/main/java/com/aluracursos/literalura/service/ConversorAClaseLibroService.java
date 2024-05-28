@@ -6,6 +6,7 @@ import com.aluracursos.literalura.model.*;
 import com.aluracursos.literalura.repository.IAutorRepository;
 import com.aluracursos.literalura.repository.ILibroEliminadoRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
+import jakarta.transaction.Transactional;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,7 @@ public class ConversorAClaseLibroService {
         }
     }
 
+    @Transactional
     private Libro convertirDatosApiALibro(DatosLibro datosLibro) {
         // Consultar la lista de libros eliminados
         List<LibrosEliminados> librosEliminados = libroEliminadoRepo.findAll();
@@ -181,6 +183,7 @@ public class ConversorAClaseLibroService {
         }
     }
 
+    @Transactional
     private Libro convertirDatosApiALibroPorTema(DatosLibro datosLibro, String tema) {
         // Consultar la lista de libros eliminados
         List<LibrosEliminados> librosEliminados = libroEliminadoRepo.findAll();
