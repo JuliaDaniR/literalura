@@ -11,9 +11,12 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -28,45 +31,26 @@ public class PortalController {
 
     @GetMapping("/")
     public String obtenerTodosLosLibros(ModelMap model) {
-        List<Libro> libros = new ArrayList<>();
-        List<Libro> masDescargados = new ArrayList<>();
-        List<Autor> autores = new ArrayList<>();
-        List<Libro> librosEspanol = new ArrayList<>();
 
-        // Obtener y ordenar los libros por título, limitando a 10
-        libros = libroRepo.findAllByEstadoTrue().stream() // Filtra solo los libros activos
-                .sorted(Comparator.comparing(Libro::getTitulo))
-                .limit(10)
-                .collect(Collectors.toList());
+    //Agregue esto para poder agilizar la carga de la pagina principal
+    Pageable top10Pageable = PageRequest.of(0, 10);
+    Pageable top22Pageable = PageRequest.of(0, 22);
 
-        // Obtener y ordenar los libros más descargados, limitando a 10
-        masDescargados = libroRepo.findAllByEstadoTrue().stream() // Filtra solo los libros activos
-                .sorted(Comparator.comparingInt(Libro::getCantidadDescargas).reversed())
-                .limit(10)
-                .collect(Collectors.toList());
+    List<Libro> libros = libroRepo.findTop10ByEstadoTrueOrderByTitulo(top10Pageable);
+    List<Libro> masDescargados = libroRepo.findTop10ByEstadoTrueOrderByCantidadDescargasDesc(top10Pageable);
+    List<Autor> autores = libroService.listarAutores(top22Pageable);
+    List<Libro> librosEspanol = libroRepo.findTop10ByLenguajeAndEstadoTrueOrderByCantidadDescargasDesc(Lenguaje.ESPANOL, top10Pageable);
 
-        // Obtener y limitar la lista de autores a 22
-        autores = libroService.listarAutores().stream()
-                .limit(22)
-                .collect(Collectors.toList());
-
-        // Obtener y ordenar los libros en español por cantidad de descargas, limitando a 10
-        librosEspanol = libroRepo.findAllByLenguajeAndEstadoTrue(Lenguaje.ESPANOL).stream() // Filtra solo los libros activos
-                .sorted(Comparator.comparingInt(Libro::getCantidadDescargas).reversed())
-                .limit(10)
-                .collect(Collectors.toList());
-        
-        if(masDescargados.isEmpty()){
+    if (masDescargados.isEmpty()) {
         libroService.listar10LibrosMasDescargados();
-        }
-        
-        // Añadir los atributos al modelo
-        model.addAttribute("librosEspanol", librosEspanol);
-        model.addAttribute("autores", autores);
-        model.addAttribute("libros", libros);
-        model.addAttribute("masDescargados", masDescargados);
-        model.addAttribute("tipos", Categoria.values());
-        model.addAttribute("lenguajes", Lenguaje.values());
+    }
+
+    model.addAttribute("librosEspanol", librosEspanol);
+    model.addAttribute("autores", autores);
+    model.addAttribute("libros", libros);
+    model.addAttribute("masDescargados", masDescargados);
+    model.addAttribute("tipos", Categoria.values());
+    model.addAttribute("lenguajes", Lenguaje.values());
 
         return "index.html";
     }

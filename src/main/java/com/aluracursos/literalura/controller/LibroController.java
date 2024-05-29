@@ -168,7 +168,7 @@ public class LibroController {
             libroService.eliminarLibro(id);
 
         }
-        return "redirect:/";
+        return "redirect:" + (referer != null ? referer : "/");
     }
 
     @GetMapping("/restaurar/{id}")
@@ -177,8 +177,8 @@ public class LibroController {
         return "redirect:" + (referer != null ? referer : "/");
     }
         
-     @PostMapping("/favorito/{id}")
-    public ResponseEntity<Void> toggleFavorito(@PathVariable Long id) {
+    @PostMapping("/favorito/{id}")
+    public ResponseEntity<Void> toggleFavorito(@PathVariable Long id, @RequestHeader(value = "Referer", required = false) String referer) {
         try {
             Libro libro = libroService.obtenerPorId(id);
             if (libro != null) {

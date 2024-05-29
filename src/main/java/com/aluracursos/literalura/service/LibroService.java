@@ -6,12 +6,17 @@ import com.aluracursos.literalura.model.*;
 import com.aluracursos.literalura.repository.IAutorRepository;
 import com.aluracursos.literalura.repository.ILibroEliminadoRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
+import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class LibroService {
@@ -358,5 +363,31 @@ public class LibroService {
     public List<Libro> listarFavoritos() {
         List<Libro> favoritos = libroRepo.findAllByFavoritoTrue();
         return favoritos != null ? favoritos : new ArrayList();
+    }
+    
+    @org.springframework.cache.annotation.Cacheable("top10Libros")
+    public List<Libro> findTop10Libros() {
+        Pageable top10Pageable = PageRequest.of(0, 10);
+        Page<Libro> page = (Page<Libro>) libroRepo.findTop10ByEstadoTrueOrderByCantidadDescargasDesc(top10Pageable);
+        return page.getContent();
+    }
+
+    @org.springframework.cache.annotation.Cacheable("top10MasDescargados")
+    public List<Libro> findTop10MasDescargados() {
+        Pageable top10Pageable = PageRequest.of(0, 10);
+      Page<Libro> page = (Page<Libro>) libroRepo.findTop10ByEstadoTrueOrderByCantidadDescargasDesc(top10Pageable);
+        return page.getContent();
+    }
+
+    @org.springframework.cache.annotation.Cacheable("top10LibrosEspanol")
+    public List<Libro> findTop10LibrosEspanol() {
+        Pageable top10Pageable = PageRequest.of(0, 10);
+       Page<Libro> page = (Page<Libro>) libroRepo.findTop10ByLenguajeAndEstadoTrueOrderByCantidadDescargasDesc(Lenguaje.ESPANOL, top10Pageable);
+        return page.getContent();
+    }
+    
+     @org.springframework.cache.annotation.Cacheable("top22Autores")
+    public List<Autor> listarAutores(Pageable pageable) {
+        return autorRepo.findTop22Autores(pageable);
     }
 }

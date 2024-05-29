@@ -12,6 +12,7 @@ com\aluracursos\literalura\controller\LibroController.class
 com\aluracursos\literalura\model\DatosAutor.class
 com\aluracursos\literalura\controller\BusquedaController.class
 com\aluracursos\literalura\model\EstadoBusqueda.class
+com\aluracursos\literalura\config\CacheConfig.class
 com\aluracursos\literalura\model\Autor.class
 com\aluracursos\literalura\model\Datos.class
 com\aluracursos\literalura\service\ConvierteDatos.class

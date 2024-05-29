@@ -520,8 +520,37 @@ h3{
     color: #0d4645
 }
 
+@media screen and (max-width: 1600px) {
+    .ficha-descripcion{
+        width: 40%;
+        flex-direction: column;
+    }
+    .formatos-contain {
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        margin: 1rem 5rem;
+    }
+    .lista {
+        overflow: hidden;
+        overflow-x: scroll;
+    }
+    .ficha-descripcion img {
+        width: 120%;
+    }
+    .descricao-texto{
+        margin-left: 2rem !important;
+    }
+}
+
 
 @media screen and (max-width: 550px) {
+    
+    .main-resultado{
+    display: flex;
+    justify-content: center ;
+    }
+    
     h1, h2 {
         font-size: 2rem;
     }
@@ -540,6 +569,7 @@ h3{
     }
     .formatos-contain {
         flex-wrap: wrap;
+        justify-content: center;
     }
     .formatos-contain a {
         margin-bottom: 2rem;
@@ -566,6 +596,7 @@ h3{
     .filtrosFormLibro {
         padding: .5rem;
         margin: 1rem;
+        width: 120%;
     }
     select, option {
         font-size: 14px;
@@ -617,24 +648,13 @@ h3{
         font-size: .8rem;
         margin-left: .3rem;
     }
+    .table{
+        grid-template-columns: repeat(1, 1fr);
+        
+    }
+     .table td:nth-child(2),
+     .table th:nth-child(2){
+        display: none;
+    }
 }
 
-@media screen and (max-width: 1600px) {
-    .ficha-descripcion{
-        width: 40%;
-        flex-direction: column;
-    }
-    .formatos-contain {
-        display: flex;
-        justify-content: space-evenly;
-        flex-wrap: wrap;
-        margin: 1rem 5rem;
-    }
-    .lista {
-        overflow: hidden;
-        overflow-x: scroll;
-    }
-    .ficha-descripcion img {
-        width: 120%;
-    }
-}
