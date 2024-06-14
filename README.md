@@ -57,16 +57,6 @@ Las entidades `Libro` y `Autor` tienen una relación de muchos a muchos. Esto si
 3. Configura las credenciales de la API de Gutendex en el archivo de propiedades (`application.properties` o `application.yml`).
 4. Ejecuta la aplicación.
 
-## Contribuir
-
-Las contribuciones son bienvenidas. Por favor, sigue estas instrucciones:
-
-1. Haz un fork del proyecto.
-2. Crea una nueva rama (`git checkout -b feature/nueva-caracteristica`).
-3. Haz tus cambios y realiza un commit (`git commit -am 'Agrega nueva característica'`).
-4. Haz push a la rama (`git push origin feature/nueva-caracteristica`).
-5. Abre un Pull Request.
-
 ## Créditos
 
 Este proyecto fue creado por Julia Daniela Rodriguez.
