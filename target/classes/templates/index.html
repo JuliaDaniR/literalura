@@ -145,9 +145,10 @@
         </header>
         <div id="resultadoBusqueda" style="display: none;">
             <!-- Contenido del resultado de búsqueda aquí -->
-            <span id="mensaje"></span>
+            <span id="mensaje">Actualizando la experiencia...</span>
             <button id="cerrar" onclick="cerrarResultado()" style="margin-top: 1.5rem;">Cerrar</button>
-        </div> <main>
+        </div>
+        <main>
             <section class="section bienvenida">
                 <h1>Bienvenidos a Nuestra Aplicación de Literatura</h1>
                 <p>Estamos encantados de presentarte nuestra aplicación de literatura, un portal donde la pasión por los libros se encuentra con la tecnología. Nuestra plataforma está conectada a una API que ofrece una vasta colección de libros en diversos idiomas y géneros, asegurando que siempre encuentres algo que te apasione.</p>
@@ -424,7 +425,7 @@
 
                 formLibro.submit();
                 limpiarFiltrosLibro(); // Limpiar los filtros después de enviar el formulario
-                
+
             }
 
             let intervaloActualizacion;
@@ -435,17 +436,18 @@
                         .then(data => {
                             const mensaje = document.getElementById('mensaje');
                             const resultadoBusqueda = document.getElementById('resultadoBusqueda');
-
+                            
                             if (data.busquedaEnCurso) {
                                 resultadoBusqueda.style.display = 'flex';
-                                mensaje.innerText = 'Buscando... \n Hasta ahora se han encontrado ' + data.cantidadResultadosParcial + ' resultados.';
+                                mensaje.innerText = 'Actualizando la experiencia... \n Hasta ahora se han encontrado ' + data.cantidadResultadosParcial + ' resultados.';
                                 // Inicia el intervalo solo si aún no ha sido iniciado
                                 if (!intervaloActualizacion) {
                                     intervaloActualizacion = setInterval(actualizarMensaje, 2000);
                                 }
                             } else {
+                                resultadoBusqueda.style.display = 'none';
                                 if (data.cantidadResultados > 0) {
-                                    mensaje.innerText = 'La búsqueda ha finalizado. \nSe encontraron ' + data.cantidadResultados + ' resultados.' + '\nPara la busqueda de ' + data.tipoBusqueda;
+                                    mensaje.innerText = 'La búsqueda ha finalizado. \nSe encontraron ' + data.cantidadResultados + ' resultados.' + '\n' + data.tipoBusqueda;
 
                                 } else {
                                     mensaje.innerText = 'La búsqueda ha finalizado. \nNo se encontraron resultados.';
@@ -465,8 +467,8 @@
                 const resultadoBusqueda = document.getElementById('resultadoBusqueda');
                 resultadoBusqueda.style.display = 'none'; // Ocultar el resultado de búsqueda al hacer clic en el botón "Cerrar"
             }
-            
-             actualizarMensaje(); 
+
+            actualizarMensaje();
         </script>
         <script>
             function toggleFavorito(libroId) {

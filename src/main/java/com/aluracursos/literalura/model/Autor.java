@@ -25,6 +25,7 @@ public class Autor {
 
     @ManyToMany(mappedBy = "autores", fetch = FetchType.EAGER)
     private List<Libro> libros = new ArrayList<>();
+    
     public Autor() {
     }
 

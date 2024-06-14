@@ -62,7 +62,7 @@ public class LibroServiceAsync {
             List<Libro> lista = getDatosLibroPorNombre(nombreLibro);
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
-            tipoBusqueda = "Nombre del libro: " + nombreLibro.toUpperCase();
+            tipoBusqueda = "Para la busqueda de: \nNombre del libro: " + nombreLibro.toUpperCase();
             return lista;
         });
     }
@@ -75,7 +75,7 @@ public class LibroServiceAsync {
             List<Libro> lista = getDatosLibroMasDescargados();
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
-            tipoBusqueda = "Libros más descargados";
+            tipoBusqueda = "Para la busqueda de: \nLibros más descargados";
             return lista;
         });
     }
@@ -89,7 +89,7 @@ public class LibroServiceAsync {
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
             Lenguaje leng = Lenguaje.fromString(lenguajeLibro);
-            tipoBusqueda = "Lenguaje: " + leng;
+            tipoBusqueda = "Para la busqueda de: \nLenguaje: " + leng;
             return lista;
         });
     }
@@ -102,7 +102,7 @@ public class LibroServiceAsync {
             List<Libro> lista = getDatosLibroPorPalabraClave(palabraClave);
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
-            tipoBusqueda = "Palabra Clave: " + palabraClave.toUpperCase();
+            tipoBusqueda = "Para la busqueda de: \nPalabra Clave: " + palabraClave.toUpperCase();
             return lista;
         });
     }
@@ -115,7 +115,7 @@ public class LibroServiceAsync {
             List<Libro> lista = getDatosLibroPorTema(tema);
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
-            tipoBusqueda = "Categoria: " + tema.toUpperCase();
+            tipoBusqueda = "Para la busqueda de: \nCategoria: " + tema.toUpperCase();
             return lista;
         });
     }
@@ -128,7 +128,7 @@ public class LibroServiceAsync {
             List<Libro> lista = getDatosAutorVivoPorAño(anio);
             busquedaEnCurso = false;
             cantidadResultados = lista.size();
-            tipoBusqueda = "Vivos hasta " + anio;
+            tipoBusqueda = "Para la busqueda de: \nVivos hasta " + anio;
             return lista;
         });
     }
@@ -140,7 +140,7 @@ public class LibroServiceAsync {
     public int getCantidadResultados() {
         return cantidadResultados;
     }
-    
+
     public int getCantidadResultadosParcial() {
         return cantidadResultadosParcial;
     }
@@ -231,13 +231,20 @@ public class LibroServiceAsync {
     public List<Libro> getDatos10LibroMasDescargados() {
         List<Libro> listado = new ArrayList<>();
         cantidadResultadosParcial = 0;
-        for (int i = 1; i < 2; i++) {
+        for (int i = 1; i < 3; i++) {
             String url = "https://gutendex.com/books/?page=" + i + "&sort=downloads";
+            busquedaEnCurso = true;
+            cantidadResultados = 0;
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
             listado.addAll(lista);
-
+            
             cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
+            System.out.println("parcial "+cantidadResultadosParcial);
+            cantidadResultados = cantidadResultadosParcial;
         }
+        tipoBusqueda = "Aquí hay algunos de los Libros más descargados";
+        busquedaEnCurso = false;
+
         return listado;
     }
 

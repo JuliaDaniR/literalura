@@ -112,7 +112,6 @@ public class LibroService {
                 System.out.println("No se encontro ningun libro buscaremos en la api");
             }
         }
-        serviceAsync.actualizarDatosLibrosMasDescargados();
         return resultado;
     }
 

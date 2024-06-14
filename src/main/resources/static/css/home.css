@@ -501,14 +501,17 @@ label {
 }
 
 .favorito-lleno {
-    color: yellow;
+    color: black;
     border: 2px solid black;
-    background: black;
+    background: #f3f70f87;
     border-radius: 50%;
 }
 
 .favorito-vacio {
-    color: #0d4645;
+    color: black;
+    border: 2px solid white;
+    background: #f4eeee87;
+    border-radius: 50%;
 }
 
 .favorito-contenedor span {

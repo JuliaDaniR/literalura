@@ -6,17 +6,13 @@ import com.aluracursos.literalura.model.Autor;
 import com.aluracursos.literalura.model.Libro;
 import com.aluracursos.literalura.repository.ILibroRepository;
 import com.aluracursos.literalura.service.LibroService;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller

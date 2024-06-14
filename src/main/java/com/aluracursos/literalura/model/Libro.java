@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "libros")
