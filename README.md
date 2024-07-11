@@ -40,11 +40,13 @@ Las entidades `Libro` y `Autor` tienen una relación de muchos a muchos. Esto si
 
 ## Tecnologías Utilizadas
 
-- Java
-- Spring Boot
-- Thymeleaf
-- HTML
-- CSS
+ ![Postgres](https://img.shields.io/badge/Postgres-316192?style=flat&logo=postgresql&logoColor=white)
+ ![Java](https://img.shields.io/badge/Java-ED8B00?style=flat&logo=java&logoColor=white)
+ ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-6DB33F?style=flat&logo=spring-boot&logoColor=white)
+ ![Thymeleaf](https://img.shields.io/badge/Thymeleaf-005F0F?style=flat&logo=thymeleaf&logoColor=white)
+ ![HTML](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)
+ ![CSS](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)
+
 
 ## Ejemplos de Uso
 
@@ -54,16 +56,6 @@ Las entidades `Libro` y `Autor` tienen una relación de muchos a muchos. Esto si
 2. Abre el proyecto en tu IDE preferido.
 3. Configura las credenciales de la API de Gutendex en el archivo de propiedades (`application.properties` o `application.yml`).
 4. Ejecuta la aplicación.
-
-## Contribuir
-
-Las contribuciones son bienvenidas. Por favor, sigue estas instrucciones:
-
-1. Haz un fork del proyecto.
-2. Crea una nueva rama (`git checkout -b feature/nueva-caracteristica`).
-3. Haz tus cambios y realiza un commit (`git commit -am 'Agrega nueva característica'`).
-4. Haz push a la rama (`git push origin feature/nueva-caracteristica`).
-5. Abre un Pull Request.
 
 ## Créditos
 
