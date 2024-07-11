@@ -516,7 +516,7 @@ label {
 
 .favorito-contenedor span {
     font-size: 40px;
-    cursor: pointer;
+    cursor: cell;
 }
 h3{
     font-size: 2rem;

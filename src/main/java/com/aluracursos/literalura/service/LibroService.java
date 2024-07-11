@@ -116,8 +116,9 @@ public class LibroService {
     }
 
     public List<Libro> listarLibroPorTema(String tema) {
-
+        System.out.println("**************Tema "+tema);
         categoria = Categoria.valueOf(tema.toUpperCase());
+        System.out.println("*********** Categoria "+categoria);
         List<Libro> listado = new ArrayList<>();
 
         List<Libro> libros = libroRepo.findAll();
@@ -387,6 +388,7 @@ public class LibroService {
     
      @org.springframework.cache.annotation.Cacheable("top22Autores")
     public List<Autor> listarAutores(Pageable pageable) {
+
         return autorRepo.findTop22Autores(pageable);
     }
 }

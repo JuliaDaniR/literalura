@@ -7,7 +7,6 @@ import com.aluracursos.literalura.repository.IAutorRepository;
 import com.aluracursos.literalura.repository.ILibroEliminadoRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
 import jakarta.transaction.Transactional;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +17,6 @@ public class ConversorAClaseLibroService {
 
     private final ConsumoApi consumoApi = new ConsumoApi();
     private final ConvierteDatos conversor = new ConvierteDatos();
-    private final int cantidadMaximaPaginas = 2298;
-    private final List<Libro> listadoLibros = new ArrayList<>();
-    private Libro libro = new Libro();
     private final ILibroRepository libroRepo;
     private final IAutorRepository autorRepo;
     private final ILibroEliminadoRepository libroEliminadoRepo;

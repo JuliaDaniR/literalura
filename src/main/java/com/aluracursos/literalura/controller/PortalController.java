@@ -30,11 +30,11 @@ public class PortalController {
 
     //Agregue esto para poder agilizar la carga de la pagina principal
     Pageable top10Pageable = PageRequest.of(0, 10);
-    Pageable top22Pageable = PageRequest.of(0, 22);
+    Pageable top22Pageable = PageRequest.of(0, 10);
 
     List<Libro> libros = libroRepo.findTop10ByEstadoTrueOrderByTitulo(top10Pageable);
     List<Libro> masDescargados = libroRepo.findTop10ByEstadoTrueOrderByCantidadDescargasDesc(top10Pageable);
-    List<Autor> autores = libroService.listarAutores(top22Pageable);
+    List<Autor> autores = libroService.listarAutores();
     List<Libro> librosEspanol = libroRepo.findTop10ByLenguajeAndEstadoTrueOrderByCantidadDescargasDesc(Lenguaje.ESPANOL, top10Pageable);
 
     if (masDescargados.isEmpty()) {
@@ -42,7 +42,7 @@ public class PortalController {
     }
 
     model.addAttribute("librosEspanol", librosEspanol);
-    model.addAttribute("autores", autores);
+    model.addAttribute("autores", autores.stream().limit(10));
     model.addAttribute("libros", libros);
     model.addAttribute("masDescargados", masDescargados);
     model.addAttribute("tipos", Categoria.values());

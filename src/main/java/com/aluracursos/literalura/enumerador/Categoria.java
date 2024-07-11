@@ -11,7 +11,6 @@ import java.io.IOException;
 public enum Categoria {
 
     FICCION("fiction", "Ficcion"),
-    CIENCIA_FICCION("science fiction", "Ciencia Ficcion"),
     FANTASIA("fantasy", "Fantasia"),
     MISTERIO("mystery", "Misterio"),
     THRILLER("thriller", "Thriller"),

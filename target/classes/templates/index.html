@@ -185,15 +185,17 @@
                 </div>
                 <ul class="lista">
                     <li th:each="libro : ${libros}" class="section_libros"  th:if="${libro.estado}">
-                        <a th:href="@{/libros/detalles/__${libro.id}__}">
-                            <div class="imagen-contenedor">
-                                <div class="favorito-contenedor">
-                                    <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
-                                          th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
-                                </div>
-                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
+
+                        <div class="imagen-contenedor">
+                            <div class="favorito-contenedor">
+                                <span th:classappend="${libro.favorito} ? 'favorito-lleno' : 'favorito-vacio'" 
+                                      th:onclick="|toggleFavorito(${libro.id})|">&#9733;</span>
                             </div>
-                        </a>
+                            <a th:href="@{/libros/detalles/__${libro.id}__}">
+                                <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg';">
+                            </a>
+                        </div>
+
                         <div class="titulo-overlay">
                             <span th:text="'&quot;' + ${libro.titulo} + '&quot;'"></span><br>
                             <span>
@@ -436,7 +438,7 @@
                         .then(data => {
                             const mensaje = document.getElementById('mensaje');
                             const resultadoBusqueda = document.getElementById('resultadoBusqueda');
-                            
+
                             if (data.busquedaEnCurso) {
                                 resultadoBusqueda.style.display = 'flex';
                                 mensaje.innerText = 'Actualizando la experiencia... \n Hasta ahora se han encontrado ' + data.cantidadResultadosParcial + ' resultados.';
