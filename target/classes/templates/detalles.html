@@ -1,100 +1,133 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-            rel="stylesheet"
-            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-            crossorigin="anonymous"
-            />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-              integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" th:href="@{/css/styles.css}" />
-        <link rel="stylesheet" type="text/css" th:href="@{/css/home.css}" />
-        <title>Literalura - Nuestra selección de Libros</title>
-    </head>
-    <body>
-        <header class="header">
-            <div class="header__logo">
-                <a th:href="@{/}"><img src="/img/logo-literalura.png" alt="Logo Literalura" style='padding-top: 3rem;'></a>
-            </div>
-            <div class="header__opciones"></div>
-        </header>
-        <main class="ficha">
-
-            <div class="ficha-descripcion" id="ficha-descripcion"  th:if="${libro.estado}">
-                <h1 th:text="${libro.titulo}" style="width: 100%"></h1>
-                <div>
-                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.onerror=null;this.src='/img/No-disponible-libro.jpg'; style='width: 100%'">
+<html th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'Literalura - ' + ${libro.titulo}">Detalles del Libro</title>
+</head>
+<body>
+    <main>
+        <div class="glass-card mb-5" th:if="${libro != null}">
+            <div class="row g-5 align-items-center">
+                
+                <!-- Book Image -->
+                <div class="col-md-4 text-center">
+                    <img th:src="${libro.imagen}" th:alt="${libro.titulo}" class="img-fluid rounded shadow-lg" onerror="this.src='/img/No-disponible-libro.jpg';" style="max-height: 500px; object-fit: cover;">
                 </div>
-                <div>
-                    <div class="descricao-texto" style="margin-left: 4rem; flex-wrap: wrap">
-                        <h3 th:text="'Cantidad de descargas: ' + ${libro.cantidadDescargas}"></h3>
-                        <h3>Autores:</h3>
-                        <div th:each="autor : ${libro.autores}">
-                            <h4 th:text="'Nombre: ' + ${autor.nombre}"></h4>
-                            <h4 th:text="'Año de nacimiento: ' + ${autor.anioNac}"></h4>
-                            <h4 th:text="'Año de muerte: ' + ${autor.anioMuerte}" style="border-bottom: 1px solid whitesmoke; padding: .3rem"></h4>
+                
+                <!-- Book Info -->
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold mb-3" th:text="${libro.titulo}"></h1>
+                    
+                    <div class="mb-4">
+                        <span class="badge bg-primary fs-6 me-2"><i class="fa-solid fa-language me-1"></i> <span th:text="${libro.lenguaje}"></span></span>
+                        <span class="badge bg-info text-dark fs-6 me-2"><i class="fa-solid fa-tag me-1"></i> <span th:text="${libro.categoria}"></span></span>
+                        <span class="badge bg-secondary fs-6"><i class="fa-solid fa-download me-1"></i> <span th:text="${libro.cantidadDescargas}"></span> descargas</span>
+                    </div>
+                    
+                    <div class="mb-4 d-flex flex-wrap gap-2" th:if="${libro.vibras != null and !libro.vibras.isEmpty()}">
+                        <a th:each="vibra : ${libro.vibras}" th:href="@{/libros/listar(vibra=${vibra})}" class="badge rounded-pill bg-dark border border-info text-info fs-6 fw-normal px-3 py-2 text-decoration-none shadow-sm vibra-tag" th:text="'#' + ${vibra}"></a>
+                    </div>
+
+                    <h3 class="mb-3 border-bottom border-secondary pb-2">Sobre los Autores</h3>
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6" th:each="autor : ${libro.autores}">
+                            <div class="glass-panel p-3">
+                                <h5 class="text-white mb-1" th:text="${autor.nombreFormateado}"></h5>
+                                <small class="text-secondary d-block mb-3">
+                                    <i class="fa-solid fa-calendar-days me-1"></i> 
+                                    <span th:text="${autor.anioNac} ?: 'Desconocido'"></span> - <span th:text="${autor.anioMuerte} ?: 'Presente'"></span>
+                                </small>
+                                <div class="d-flex gap-2">
+                                    <a th:href="@{/libros/listar(nombreAutor=${autor.nombre})}" class="btn btn-sm btn-outline-info rounded-pill">
+                                        <i class="fa-solid fa-book"></i> Sus Libros
+                                    </a>
+                                    <a th:href="'https://es.wikipedia.org/wiki/Special:Search?search=' + ${autor.nombreFormateado}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill">
+                                        <i class="fa-brands fa-wikipedia-w"></i> Biografía
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <h3 th:text="'Lenguaje: ' + ${libro.lenguaje.languageName}"></h3>
-                        <h3 th:text="'Categoria: ' + ${libro.categoria.enEspañol}"></h3>
+                    </div>
+
+                    <!-- Magic Summary Box -->
+                    <div class="glass-panel p-4 mb-4 border border-info border-opacity-25" id="resumenBox">
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                            <div>
+                                <h3 class="m-0 d-flex align-items-center">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-info me-2"></i>
+                                    Resumen Mágico
+                                    <span class="badge bg-info text-dark ms-3 rounded-pill" style="font-size: 0.6rem; letter-spacing: 1px;">IA</span>
+                                </h3>
+                                <p class="text-secondary mb-0 mt-1" style="font-size: 0.85rem;">
+                                    Descubre de qué trata el libro con nuestro Bibliotecario Virtual.
+                                </p>
+                            </div>
+                            <div>
+                                <!-- Si NO hay resumen -->
+                                <button th:if="${libro.resumen == null}" id="btnGenerarResumen" class="btn btn-sm btn-info rounded-pill" th:onclick="|generarResumen(${libro.id}, false)|">
+                                    Generar con IA
+                                </button>
+                                
+                                <!-- Si YA hay resumen -->
+                                <div th:if="${libro.resumen != null}">
+                                    <button class="btn btn-sm btn-outline-info rounded-pill" type="button" data-bs-toggle="modal" data-bs-target="#resumenModal">
+                                        <i class="fa-solid fa-eye me-1"></i> Ver Resumen
+                                    </button>
+                                    <button id="btnRegenerarResumen" class="btn btn-sm btn-outline-warning rounded-pill ms-2" th:onclick="|generarResumen(${libro.id}, true)|" title="Volver a preguntarle a la IA">
+                                        <i class="fa-solid fa-arrows-rotate"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Downloads / Formatos -->
+                    <h3 class="mb-3 border-bottom border-secondary pb-2">Formatos Disponibles</h3>
+                    <div class="d-flex flex-wrap gap-3">
+                        <div th:each="entry : ${formatos}">
+                            <a th:href="${entry.value}" target="_blank" class="btn btn-outline-light d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-file-pdf text-danger" th:if="${entry.key == 'application/pdf'}"></i>
+                                <i class="fa-brands fa-html5 text-warning" th:if="${entry.key == 'text/html'}"></i>
+                                <i class="fa-solid fa-file-audio text-info" th:if="${entry.key == 'audio/mp4'}"></i>
+                                <i class="fa-solid fa-book-open text-primary" th:if="${entry.key == 'application/epub+zip'}"></i>
+                                <i class="fa-solid fa-file-arrow-down text-success" th:if="${entry.key == 'application/octet-stream'}"></i>
+                                <span th:text="${@utilidades.getFormatLabel(entry.key)}"></span>
+                            </a>
+                        </div>
+                        <div th:if="${formatos == null || formatos.isEmpty()}" class="text-secondary">
+                            <p><i class="fa-solid fa-circle-exclamation me-2"></i> No hay formatos de descarga disponibles.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="formatos-contain">
-                <div th:each="entry : ${formatos}">
-                    <section th:if="${entry.key == 'text/html'}">
-                        <div>
-                            <a th:href="${entry.value}" th:text="${@utilidades.getFormatLabel(entry.key)}" target="_blank" class="btn"></a>
-                        </div>
-                    </section>
-                    <section th:if="${entry.key == 'application/pdf'}">
-                        <div>
-                            <a th:href="${entry.value}" th:text="${@utilidades.getFormatLabel(entry.key)}" target="_blank" class="btn"></a>
-                        </div>
-                    </section>
-                    <section th:if="${entry.key == 'audio/mp4'}">
-                        <div>
-                            <a th:href="${entry.value}" th:text="${@utilidades.getFormatLabel(entry.key)}" target="_blank" class="btn"></a>
-                        </div>
-                    </section>
-                    <section th:if="${entry.key == 'application/epub+zip'}">
-                        <div>
-                            <a th:href="${entry.value}" th:text="${@utilidades.getFormatLabel(entry.key)}" target="_blank" class="btn"></a>
-                        </div>
-                    </section>
-                    <section th:if="${entry.key == 'application/octet-stream'}">
-                        <div>
-                            <a th:href="${entry.value}" th:text="${@utilidades.getFormatLabel(entry.key)}" target="_blank" class="btn"></a>
-                        </div>
-                    </section>
+            
+            <div class="mt-5 text-center">
+                <a href="javascript:history.back()" class="btn-modern bg-transparent border border-secondary text-white"><i class="fa-solid fa-arrow-left me-2"></i> Volver Atrás</a>
+            </div>
+        </div>
+        
+        <div th:if="${libro == null}" class="glass-card text-center py-5">
+            <h2 class="text-danger">Libro no encontrado</h2>
+            <a href="/" class="btn-modern mt-3">Ir al Inicio</a>
+        </div>
+
+        <!-- Modal Superpuesto con Fondo Oscuro (Movido a la raíz para evitar bugs de scroll) -->
+        <div class="modal fade" id="resumenModal" tabindex="-1" aria-labelledby="resumenModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+                <div class="modal-content border-info" style="background-color: rgba(10, 25, 35, 0.95); backdrop-filter: blur(20px); border-radius: 16px; box-shadow: 0 0 30px rgba(0,0,0,0.8);">
+                    <div class="modal-header border-bottom border-secondary">
+                        <h5 class="modal-title text-info" id="resumenModalLabel"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Resumen Mágico</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-light fs-5 lh-lg" id="textoResumenInner">
+                        <p class="text-secondary mb-0" th:if="${libro.resumen == null}">
+                            Aún no hay magia aquí.
+                        </p>
+                        <p class="mb-0" th:if="${libro.resumen != null}" th:text="${libro.resumen}"></p>
+                    </div>
                 </div>
             </div>
-        </main>
-        <footer id="contacto">
-            <div class="footer">
-                <div class="contain-redes">
-                    <i class="bi bi-github" style="font-size: 28px;"></i>
-                    <i class="bi bi-twitter" style="font-size: 28px;"></i>
-                    <i class="bi bi-facebook" style="font-size: 28px;"></i>
-                </div>
-                <div class="mt-4">
-                    <p class="text-[25px] font-bold capitalize">&#9400; copyright - 2024</p>
-                    <small class="mt-1.5 font-semibold">Elaborado por Julia Rodriguez</small>
-                </div>              
-            </div>
-        </footer>
-    </body>
+        </div>
+    </main>
+</body>
 </html>

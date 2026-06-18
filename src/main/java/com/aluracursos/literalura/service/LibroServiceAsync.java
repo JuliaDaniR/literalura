@@ -33,6 +33,7 @@ public class LibroServiceAsync {
     private final ILibroRepository libroRepo;
     private final IAutorRepository autorRepo;
     private final ConversorAClaseLibroService conversorAClaseLibroService;
+    private final ConsumoApi consumoApi;
     private Categoria categoria;
 
     @Value("${busqueda.enCurso}")
@@ -48,10 +49,11 @@ public class LibroServiceAsync {
     private Integer cantidadResultadosParcial;
 
     @Autowired
-    public LibroServiceAsync(ILibroRepository libroRepo, IAutorRepository autorRepo, ConversorAClaseLibroService conversorAClaseLibroService) {
+    public LibroServiceAsync(ILibroRepository libroRepo, IAutorRepository autorRepo, ConversorAClaseLibroService conversorAClaseLibroService, ConsumoApi consumoApi) {
         this.libroRepo = libroRepo;
         this.autorRepo = autorRepo;
         this.conversorAClaseLibroService = conversorAClaseLibroService;
+        this.consumoApi = consumoApi;
     }
 
     @Async("taskExecutor")
@@ -149,70 +151,46 @@ public class LibroServiceAsync {
         return tipoBusqueda;
     }
 
-    public List<Libro> getDatosLibroPorNombre(String nombreLibro) {
-        String url = URL_BASE + NOMBRE + nombreLibro.replace(" ", "+");
+    private List<Libro> procesarPaginacion(String urlInicial, boolean esPorTema, String temaNombre) {
         List<Libro> listado = new ArrayList<>();
         cantidadResultadosParcial = 0;
+        String url = urlInicial;
+        
         while (url != null) {
-            List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
+            List<Libro> lista;
+            if (esPorTema) {
+                lista = conversorAClaseLibroService.consultaApiPorTema(url, temaNombre);
+            } else {
+                lista = conversorAClaseLibroService.consultaApi(url);
+            }
             listado.addAll(lista);
-
-            // Obtener el enlace a la siguiente página de resultados
             url = obtenerSiguientePagina(url);
-
-            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
+            cantidadResultadosParcial += lista.size();
         }
-        System.out.println("busqueda finalizada");
+        System.out.println("Búsqueda finalizada");
         return listado;
+    }
+
+    public List<Libro> getDatosLibroPorNombre(String nombreLibro) {
+        String url = URL_BASE + NOMBRE + nombreLibro.replace(" ", "+");
+        return procesarPaginacion(url, false, null);
     }
 
     public List<Libro> getDatosLibroPorLenguaje(String lenguajeLibro) {
         String url = URL_BASE + LENGUAJE + lenguajeLibro;
-        List<Libro> listado = new ArrayList<>();
-        cantidadResultadosParcial = 0;
-        while (url != null) {
-            List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
-            listado.addAll(lista);
-
-            // Obtener el enlace a la siguiente página de resultados
-            url = obtenerSiguientePagina(url);
-
-            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
-        }
-        System.out.println("busqueda finalizada");
-        return listado;
+        return procesarPaginacion(url, false, null);
     }
 
     public List<Libro> getDatosLibroPorPalabraClave(String palabraClave) {
         String url = URL_BASE + PALABRA_CLAVE + palabraClave.replace(" ", "+");
-        List<Libro> listado = new ArrayList<>();
-        cantidadResultadosParcial = 0;
-        while (url != null) {
-            List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
-            listado.addAll(lista);
-            url = obtenerSiguientePagina(url);
-
-            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
-        }
-        System.out.println("busqueda finalizada");
-        return listado;
+        return procesarPaginacion(url, false, null);
     }
 
     public List<Libro> getDatosLibroPorTema(String tema) {
         Categoria cate = Categoria.fromEspanol(tema);
-        tema = cate.getEnIngles();
-        String url = URL_BASE + PALABRA_CLAVE + tema.replace(" ", "+");
-        List<Libro> listado = new ArrayList<>();
-        cantidadResultadosParcial = 0;
-        while (url != null) {
-            List<Libro> lista = conversorAClaseLibroService.consultaApiPorTema(url, cate.name());
-            listado.addAll(lista);
-            url = obtenerSiguientePagina(url);
-
-            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
-        }
-        System.out.println("busqueda finalizada");
-        return listado;
+        String temaIngles = cate.getEnIngles();
+        String url = URL_BASE + PALABRA_CLAVE + temaIngles.replace(" ", "+");
+        return procesarPaginacion(url, true, cate.name());
     }
 
     public List<Libro> getDatosLibroMasDescargados() {
@@ -250,46 +228,22 @@ public class LibroServiceAsync {
 
     public List<Libro> getDatosAutorVivoPorAño(Integer anio) {
         String url = "https://gutendex.com/books/?author_year_end=" + anio;
-        List<Libro> listado = new ArrayList<>();
-        cantidadResultadosParcial = 0;
-        while (url != null) {
-            List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
-            listado.addAll(lista);
-            url = obtenerSiguientePagina(url);
-
-            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
-        }
-        System.out.println("busqueda finalizada");
-        return listado;
+        return procesarPaginacion(url, false, null);
     }
 
-    //Este metodo me permite agilizar la busqueda en la api 
-    //Porque busca en la pagina siguiente que hay resultados
-    //a traves de next y no recorre todas que demoraria demasiado
+    // Este metodo me permite agilizar la busqueda en la api 
+    // Porque busca en la pagina siguiente que hay resultados
+    // a traves de next y no recorre todas que demoraria demasiado
     private String obtenerSiguientePagina(String urlActual) {
         try {
-            // Realiza una solicitud HTTP GET a la URL actual
-            URL url = new URL(urlActual);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            // Lee la respuesta
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            reader.close();
-
-            // Analiza la respuesta JSON para obtener el enlace a la siguiente página
-            JsonObject jsonResponse = JsonParser.parseString(response.toString()).getAsJsonObject();
-            if (jsonResponse.has("next") && !jsonResponse.get("next").isJsonNull()) {
-                return jsonResponse.get("next").getAsString();
+            String jsonResponse = consumoApi.obtenerDatos(urlActual);
+            JsonObject jsonObject = JsonParser.parseString(jsonResponse).getAsJsonObject();
+            if (jsonObject.has("next") && !jsonObject.get("next").isJsonNull()) {
+                return jsonObject.get("next").getAsString();
             } else {
                 return null;
             }
-        } catch (IOException | JsonSyntaxException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

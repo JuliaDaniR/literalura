@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Fondo oscuro -->
+  <rect width="256" height="256" rx="64" fill="#021a14"/>
+  
+  <!-- Letra L estilizada con verde esmeralda -->
+  <path d="M70,50 L100,50 L100,180 L180,180 L180,210 L70,210 Z" fill="#059669"/>
+  
+  <!-- Destello / Estrella mágica principal -->
+  <path d="M160,50 Q160,80 130,80 Q160,80 160,110 Q160,80 190,80 Q160,80 160,50 Z" fill="#38bdf8"/>
+  
+  <!-- Destello secundario -->
+  <path d="M200,100 Q200,115 185,115 Q200,115 200,130 Q200,115 215,115 Q200,115 200,100 Z" fill="#f8fafc"/>
+</svg>

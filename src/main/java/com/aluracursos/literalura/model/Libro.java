@@ -32,6 +32,7 @@ public class Libro {
             joinColumns = @JoinColumn(name = "libro_id"),
             inverseJoinColumns = @JoinColumn(name = "autor_id")
     )
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
     private List<Autor> autores;
 
     @Enumerated(EnumType.STRING)
@@ -42,10 +43,20 @@ public class Libro {
     @Column(name = "categoria")
     private Categoria categoria;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "libro_formatos", joinColumns = @JoinColumn(name = "libro_id"))
     @Column(name = "formato")
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
     private List<String> formatos;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "libro_vibras", joinColumns = @JoinColumn(name = "libro_id"))
+    @Column(name = "vibra")
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
+    private List<String> vibras;
+
+    @Column(columnDefinition = "TEXT")
+    private String resumen;
 
     private String imagen;
     
@@ -55,11 +66,12 @@ public class Libro {
     
     public Libro() {
         this.autores = new ArrayList<>();
+        this.vibras = new ArrayList<>();
     }
 
     public Libro(Long id, String titulo, Integer cantidadDescargas,
             String tipoDeMedio, List<Autor> autores, Lenguaje lenguaje,
-            Categoria categoria, List<String> formatos, String imagen, Boolean estado , Boolean favorito) {
+            Categoria categoria, List<String> formatos, String imagen, Boolean estado , Boolean favorito, List<String> vibras) {
         this.id = id;
         this.titulo = titulo;
         this.cantidadDescargas = cantidadDescargas;
@@ -71,10 +83,15 @@ public class Libro {
         this.imagen = imagen;
         this.estado = estado;
         this.favorito = favorito;
+        this.vibras = vibras != null ? vibras : new ArrayList<>();
     }
     
     public boolean isFavorito() {
-        return favorito;
+        return favorito != null && favorito;
+    }
+    
+    public boolean isEstado() {
+        return estado != null && estado;
     }
 
     @Override

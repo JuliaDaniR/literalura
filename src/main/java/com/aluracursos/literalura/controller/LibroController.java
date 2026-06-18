@@ -1,14 +1,17 @@
 package com.aluracursos.literalura.controller;
 
+import com.aluracursos.literalura.dto.AutorDTO;
+import com.aluracursos.literalura.dto.BusquedaRequestDTO;
+import com.aluracursos.literalura.dto.LibroDTO;
 import com.aluracursos.literalura.enumerador.Categoria;
 import com.aluracursos.literalura.enumerador.Lenguaje;
 import com.aluracursos.literalura.model.Autor;
 import com.aluracursos.literalura.model.Libro;
-import com.aluracursos.literalura.model.LibrosEliminados;
-import com.aluracursos.literalura.repository.ILibroEliminadoRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
 import com.aluracursos.literalura.service.LibroService;
 import java.util.ArrayList;
+
+import com.aluracursos.literalura.service.ResumenIAService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,10 +37,10 @@ public class LibroController {
     private LibroService libroService;
 
     @Autowired
-    private ILibroEliminadoRepository libroEliminadoRepo;
+    private ILibroRepository libroRepo;
 
     @Autowired
-    private ILibroRepository libroRepo;
+    private ResumenIAService resumenIAService;
 
     @GetMapping("/detalles/{id}")
     public String obtenerPorId(@PathVariable Long id, ModelMap model) {
@@ -46,7 +49,7 @@ public class LibroController {
         Map<String, String> formatos = libroService.obtenerFormatos(id);
 
         model.addAttribute("formatos", formatos);
-        model.addAttribute("libro", libro);
+        model.addAttribute("libro", LibroDTO.fromEntity(libro));
 
         return "detalles.html";
     }
@@ -54,101 +57,114 @@ public class LibroController {
     @GetMapping("/listar")
     public String realizarFiltros(ModelMap model,
             RedirectAttributes redirectAttrs,
-            @RequestParam(value = "nombre", required = false) String nombre,
-            @RequestParam(value = "palabraClave", required = false) String palabraClave,
-            @RequestParam(value = "inicial", required = false) String inicial,
-            @RequestParam(value = "tipoCategoria", required = false) Categoria tipoCategoria,
-            @RequestParam(value = "idioma", required = false) Lenguaje idioma,
-            @RequestParam(value = "masPopulares", required = false) String masPopulares,
-            @RequestParam(value = "librosGuardados", required = false) String librosGuardados,
-            @RequestParam(value = "librosEliminados", required = false) String librosEliminados,
-            @RequestParam(value = "librosFavoritos", required = false) String librosFavoritos,
-            @RequestParam(value = "listarAutores", required = false) String listarAutores,
-            @RequestParam(value = "nombreAutor", required = false) String nombreAutor,
-            @RequestParam(value = "anio", required = false) Integer anio,
+            BusquedaRequestDTO filtros,
+            @RequestParam(defaultValue = "0") int page,
             @RequestHeader(value = "Referer", required = false) String referer) {
 
-        System.out.println("********************* " + librosEliminados);
         List<Libro> listadoLibros = new ArrayList<>();
         List<Autor> listadoAutores = new ArrayList<>();
         List<Libro> listaEliminados = new ArrayList<>();
         boolean buscandoLibros = true;
-        String textoResultado = "";
+        boolean isDefaultSearch = false;
+        String textoResultado = "Resultados de Búsqueda";
+        String fraseMotivacional = "Explora y descubre nuevas lecturas";
 
         try {
-            if (nombre != null && !nombre.isEmpty()) {
-                listadoLibros = libroService.listarLibrosPorNombre(nombre);
-                textoResultado = "Estos son los libros encontrados en base al nombre que ingresó";
-            }
-            if (palabraClave != null && !palabraClave.isEmpty()) {
-                listadoLibros = libroService.listarLibroPorPalabraClave(palabraClave);
-                textoResultado = "Estos son los libros encontrados relacionados a la palabra que ingresó";
-            }
-            if (inicial != null && !inicial.isEmpty()) {
-                listadoLibros = libroService.listarLibrosPorInicial(inicial);
-                textoResultado = "Estos son los libros que comienzan con la letra '" + inicial.toUpperCase() + "'";
-            }
-            if (tipoCategoria != null) {
-                String categoria = tipoCategoria.name();
-                textoResultado = "Estos son los libros encontrados para la categoria '" + categoria.toUpperCase() + "'";
+            if (filtros.nombre() != null && !filtros.nombre().isEmpty()) {
+                listadoLibros = libroService.listarLibrosPorNombre(filtros.nombre());
+                textoResultado = "Libros por nombre: " + filtros.nombre();
+                fraseMotivacional = "Cada título encierra un universo entero por descubrir.";
+            } else if (filtros.nombreAutor() != null && !filtros.nombreAutor().isEmpty()) {
+                listadoLibros = libroService.listarLibroPorAutor(filtros.nombreAutor());
+                textoResultado = "Libros por autor: " + filtros.nombreAutor();
+                fraseMotivacional = "Descubre la genialidad detrás de sus palabras.";
+            } else if (filtros.palabraClave() != null && !filtros.palabraClave().isEmpty()) {
+                listadoLibros = libroService.listarLibroPorPalabraClave(filtros.palabraClave());
+                textoResultado = "Libros por palabra clave: " + filtros.palabraClave();
+                fraseMotivacional = "Conectando conceptos y revelando historias ocultas.";
+            } else if (filtros.tipoCategoria() != null) {
+                String categoria = filtros.tipoCategoria().name();
                 listadoLibros = libroService.listarLibroPorTema(categoria);
-            }
-            if (idioma != null) {
-                String lenguaje = idioma.getLanguageName();
+                textoResultado = "Libros en categoría: " + filtros.tipoCategoria().getEnEspañol();
+                fraseMotivacional = "Sumérgete en las maravillas de este género literario.";
+            } else if (filtros.idioma() != null) {
+                String lenguaje = filtros.idioma().getLanguageName();
                 listadoLibros = libroService.listarLibroPorIdioma(lenguaje);
-                textoResultado = "Estos son los libros encontrados para el idioma '" + lenguaje.toUpperCase() + "'";
-            }
-            if (listarAutores != null && !listarAutores.isEmpty()) {
+                textoResultado = "Libros en idioma: " + lenguaje;
+                fraseMotivacional = "La literatura no conoce fronteras; viaja a través del idioma.";
+            } else if (filtros.masPopulares() != null && !filtros.masPopulares().isEmpty()) {
+                listadoLibros = libroService.listar100LibrosMasDescargados();
+                textoResultado = "Top 100 Libros Más Populares";
+                fraseMotivacional = "Las obras maestras que el mundo no deja de leer.";
+            } else if (filtros.librosFavoritos() != null && !filtros.librosFavoritos().isEmpty()){
+                listadoLibros = libroService.listarFavoritos();
+                textoResultado = "Tus Libros Favoritos";
+                fraseMotivacional = "Tus tesoros literarios más preciados en un solo lugar.";
+            } else if (filtros.librosGuardados() != null && !filtros.librosGuardados().isEmpty()) {
+                listadoLibros = libroService.listarLibros();
+                textoResultado = "Todos tus libros guardados";
+                fraseMotivacional = "Tu biblioteca personal, creciendo libro a libro.";
+            } else if (filtros.inicial() != null && !filtros.inicial().isEmpty()) {
+                listadoLibros = libroService.listarLibrosPorInicial(filtros.inicial());
+                textoResultado = "Libros que comienzan con: " + filtros.inicial().toUpperCase();
+                fraseMotivacional = "Letra por letra, explorando el alfabeto de la imaginación.";
+            } else if (filtros.anio() != null) {
+                listadoLibros = libroService.listarLibrosDeAutoresVivosPorAnio(filtros.anio());
+                textoResultado = "Libros de autores vivos hasta: " + filtros.anio();
+                fraseMotivacional = "Viajando en el tiempo para conectar con sus autores.";
+            } else if (filtros.vibra() != null && !filtros.vibra().isEmpty()) {
+                listadoLibros = libroService.listarLibroPorVibra(filtros.vibra());
+                textoResultado = "Libros con vibra: #" + filtros.vibra();
+                fraseMotivacional = "Explorando emociones y subgéneros únicos.";
+            } else if (filtros.listarAutores() != null && !filtros.listarAutores().isEmpty()) {
                 listadoAutores = libroService.listarAutores();
                 buscandoLibros = false;
-                textoResultado = "Estos son los autores encontrados seleccione para ver su biografia";
-            }
-            if (masPopulares != null && !masPopulares.isEmpty()) {
-                listadoLibros = libroService.listar100LibrosMasDescargados();
-                textoResultado = "Estos son los 100 libros más populares";
-            }
-            if (librosGuardados != null && !librosGuardados.isEmpty()) {
-                listadoLibros = libroService.listarLibros();
-                textoResultado = "Estos son los libros que tiene guardados";
-            }
-            if (nombreAutor != null && !nombreAutor.isEmpty()) {
-                listadoLibros = libroService.listarLibroPorAutor(nombreAutor);
-                textoResultado = "Estos son los libros encontrados en base al nombre del autor que ingreso";
-            }
-            if (anio != null) {
-                listadoLibros = libroService.listarLibrosDeAutoresVivosPorAnio(anio);
-                textoResultado = "Estos son los libros encontrados de autores vivos en base al año que ingreso";
-            }
-            if (librosEliminados != null && !librosEliminados.isEmpty()) {
-                List<LibrosEliminados> listaEliminadosEntidades = libroService.listarEliminados();
-                List<Long> listaEliminadosIds = listaEliminadosEntidades.stream()
-                        .map(LibrosEliminados::getLibroId) // Asegúrate de que este método obtenga el ID del libro original
-                        .collect(Collectors.toList());
-
-                for (Long id : listaEliminadosIds) {
-                    Optional<Libro> libro = libroRepo.findById(id);
-                    System.out.println("libro optional " + libro.get().getTitulo());
-                    if (libro.isPresent()) {
-                        listaEliminados.add(libro.get());
-                    }
-                }
+                textoResultado = "Autores registrados en la plataforma";
+                fraseMotivacional = "Conoce a las mentes brillantes que dieron vida a estas historias.";
+            } else if (filtros.librosEliminados() != null && !filtros.librosEliminados().isEmpty()) {
+                listaEliminados = libroService.listarEliminados();
                 buscandoLibros = false;
-                textoResultado = "Estos son los libros que usted ha eliminado";
+                textoResultado = "Papelera de reciclaje";
+                fraseMotivacional = "Títulos descartados que esperan una segunda oportunidad.";
+            } else {
+                // Default search if nothing is specified
+                isDefaultSearch = true;
             }
-            if (librosFavoritos != null && !librosFavoritos.isEmpty()){
-                listadoLibros = libroService.listarFavoritos();
-                textoResultado = "Estos son tus favoritos";
-            }
-            redirectAttrs.addFlashAttribute("exito", "Estos son sus resultados de su búsqueda");
         } catch (Exception ex) {
-            redirectAttrs.addFlashAttribute("error", "No se encontró ningún resultado");
+            redirectAttrs.addFlashAttribute("error", "Error procesando la búsqueda");
         }
 
-        model.addAttribute("listadoLibros", listadoLibros);
-        model.addAttribute("listadoAutores", listadoAutores);
+        List<AutorDTO> listadoAutoresDTO = listadoAutores.stream().map(AutorDTO::fromEntity).collect(Collectors.toList());
+        List<LibroDTO> listaEliminadosDTO = listaEliminados.stream().map(LibroDTO::fromEntity).collect(Collectors.toList());
+
+        org.springframework.data.domain.Page<LibroDTO> paginaLibros;
+        List<LibroDTO> paginatedList;
+        int size = 12;
+
+        if (isDefaultSearch) {
+            org.springframework.data.domain.Page<Libro> dbPage = libroService.listarLibrosPaginados(org.springframework.data.domain.PageRequest.of(page, size));
+            paginatedList = dbPage.getContent().stream().map(LibroDTO::fromEntity).collect(Collectors.toList());
+            paginaLibros = new org.springframework.data.domain.PageImpl<>(paginatedList, org.springframework.data.domain.PageRequest.of(page, size), dbPage.getTotalElements());
+        } else {
+            // Mapeo a DTOs
+            List<LibroDTO> listadoLibrosDTO = listadoLibros.stream().map(LibroDTO::fromEntity).collect(Collectors.toList());
+            
+            // Paginación en memoria
+            int start = Math.min(page * size, listadoLibrosDTO.size());
+            int end = Math.min((start + size), listadoLibrosDTO.size());
+            
+            paginatedList = listadoLibrosDTO.subList(start, end);
+            paginaLibros = new org.springframework.data.domain.PageImpl<>(paginatedList, org.springframework.data.domain.PageRequest.of(page, size), listadoLibrosDTO.size());
+        }
+
+        model.addAttribute("paginaLibros", paginaLibros);
+        model.addAttribute("listadoLibros", paginatedList); // mantenemos compatibilidad con frontend
+        model.addAttribute("listadoAutores", listadoAutoresDTO);
         model.addAttribute("textoResultado", textoResultado);
-        model.addAttribute("listaEliminados", listaEliminados);
+        model.addAttribute("fraseMotivacional", fraseMotivacional);
+        model.addAttribute("listaEliminados", listaEliminadosDTO);
         model.addAttribute("buscandoLibros", buscandoLibros);
+        model.addAttribute("filtros", filtros);
 
         return "resultado.html";
     }
@@ -157,16 +173,8 @@ public class LibroController {
     public String eliminarLibro(@PathVariable Long id, @RequestHeader(value = "Referer", required = false) String referer) {
         Libro libro = libroService.obtenerPorId(id);
         if (libro != null) {
-
-            LibrosEliminados libroEliminado = new LibrosEliminados();
-            libroEliminado.setLibroId(libro.getId());
-
-            // Guardar el registro del libro eliminado en la base de datos
-            libroEliminadoRepo.save(libroEliminado);
-
             // Cambiar el estado del libro a false
             libroService.eliminarLibro(id);
-
         }
         return "redirect:" + (referer != null ? referer : "/");
     }
@@ -195,5 +203,36 @@ public class LibroController {
         }
     }
 
-   
+    @PostMapping("/resumen/{id}")
+    public ResponseEntity<String> generarResumenIA(@PathVariable Long id, @RequestParam(required = false, defaultValue = "false") boolean recrear) {
+        try {
+            Libro libro = libroService.obtenerPorId(id);
+            if (libro != null) {
+                // Si el libro ya tiene resumen guardado y NO estamos forzando recrearlo, lo devolvemos directo
+                if (!recrear && libro.getResumen() != null && !libro.getResumen().isBlank()) {
+                    return ResponseEntity.ok(libro.getResumen());
+                }
+
+                // Extraemos el autor
+                String autorNombre = "Autor Desconocido";
+                if (libro.getAutores() != null && !libro.getAutores().isEmpty()) {
+                    autorNombre = libro.getAutores().get(0).getNombre();
+                }
+
+                // Llamamos a la magia de la IA
+                String nuevoResumen = resumenIAService.obtenerResumen(libro.getTitulo(), autorNombre);
+
+                // Lo guardamos en la base de datos de Postgres para futuras visitas
+                libro.setResumen(nuevoResumen);
+                libroRepo.save(libro);
+
+                return ResponseEntity.ok(nuevoResumen);
+            }
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al generar el resumen.");
+        }
+    }
 }

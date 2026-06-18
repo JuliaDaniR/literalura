@@ -1,28 +1,26 @@
 package com.aluracursos.literalura.service;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
+@Service
 public class ConsumoApi {
 
-    public String obtenerDatos(String url){
-        HttpClient client = HttpClient.newHttpClient();
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
-                .build();
-        HttpResponse<String> response = null;
+    private final RestClient restClient;
+
+    public ConsumoApi() {
+        this.restClient = RestClient.create();
+    }
+
+    public String obtenerDatos(String url) {
         try {
-            response = client
-                    .send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            return restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(String.class);
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error al consumir la API en la URL: " + url, e);
         }
-        String json = response.body();
-        return json;
     }
 }

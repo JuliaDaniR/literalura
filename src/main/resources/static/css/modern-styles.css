@@ -1,0 +1,422 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap');
+
+:root {
+    /* Paleta de Colores: Verde Oscuro / Dark Forest Moderno */
+    --bg-gradient: linear-gradient(135deg, #01120e 0%, #000000 100%); /* Negro absoluto a Verde muy oscuro */
+    --glass-bg: rgba(255, 255, 255, 0.02);
+    --glass-border: rgba(255, 255, 255, 0.04);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
+    --accent-primary: #059669; /* Verde esmeralda oscuro (Elegante) */
+    --accent-primary-hover: #047857; /* Verde bosque profundo */
+    --accent-secondary: #d97706; /* Ámbar oscuro/cobre para contraste */
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8; /* Gris azulado neutro */
+    --card-radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-gradient);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1, h2, h3, h4 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    padding: 1.5rem;
+    transition: var(--transition);
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255,255,255, 0.1);
+}
+
+/* Header & Navbar */
+.modern-header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 0 0 var(--card-radius) var(--card-radius);
+    border-top: none;
+}
+
+.brand-title {
+    font-size: 2rem;
+    font-weight: 800;
+    background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+}
+
+.brand-favicon {
+    height: 65px;
+    object-fit: contain;
+    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
+}
+
+.brand-link {
+    transition: var(--transition);
+}
+
+.brand-link:hover {
+    transform: scale(1.02);
+    filter: brightness(1.2);
+}
+
+/* Buttons */
+.btn-modern {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.85rem;
+}
+
+.btn-modern:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+}
+
+/* Grids and Layouts */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+/* Book Item */
+.book-card {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.book-card img {
+    border-radius: 8px;
+    width: 100%;
+    max-width: 180px;
+    height: 260px; /* Tamaño fijo para consistencia */
+    object-fit: cover; /* Evita que las imágenes se deformen */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    transition: var(--transition);
+    margin-bottom: 1.5rem;
+}
+
+.book-card:hover img {
+    transform: scale(1.05);
+}
+
+.book-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.book-author {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+/* Custom Checkboxes */
+.filter-checkbox {
+    display: none;
+}
+.filter-label {
+    display: block;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.05);
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+.filter-checkbox:checked + .filter-label {
+    background: var(--accent-primary);
+    color: #0f172a;
+    font-weight: 600;
+}
+
+/* Forms */
+.modern-input {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    width: 100%;
+    margin-top: 0.5rem;
+}
+.modern-input:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 10px rgba(5, 150, 105, 0.2);
+}
+/* Arreglo para opciones de Select en Windows/Chrome */
+.modern-input option {
+    background-color: #022c22;
+    color: #f8fafc;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    padding: 2rem;
+    text-align: center;
+    border-top: 1px solid var(--glass-border);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-secondary);
+}
+
+/* Asegurar que el contenido del modal no choque con el scroll */
+.modal-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-primary) rgba(0, 0, 0, 0.3);
+    padding-right: 1.5rem !important;
+}
+
+/* --- Chatbot Floating UI --- */
+.chatbot-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 230, 118, 0.4);
+    cursor: pointer;
+    z-index: 1050;
+    transition: var(--transition);
+    border: none;
+}
+
+.chatbot-btn:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: 0 6px 25px rgba(0, 230, 118, 0.6);
+}
+
+.chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 350px;
+    height: 500px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1040;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: var(--transition);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    border: 1px solid var(--glass-border);
+}
+
+.chat-window.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+.chat-header {
+    background: rgba(10, 25, 35, 0.95);
+    padding: 15px;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chat-body {
+    flex: 1;
+    background: rgba(2, 26, 20, 0.85);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.chat-footer {
+    background: rgba(10, 25, 35, 0.95);
+    padding: 10px 15px;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    gap: 10px;
+}
+
+.chat-bubble {
+    max-width: 85%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: white;
+}
+
+.chat-bubble.bot {
+    background: rgba(255, 255, 255, 0.1);
+    align-self: flex-start;
+    border-bottom-left-radius: 2px;
+}
+
+.chat-bubble.user {
+    background: var(--accent-primary);
+    color: #021a14;
+    font-weight: 500;
+    align-self: flex-end;
+    border-bottom-right-radius: 2px;
+}
+
+.chat-input {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: white;
+    border-radius: 20px;
+    padding: 8px 15px;
+    outline: none;
+    font-size: 0.9rem;
+}
+
+.chat-input:focus {
+    border-color: var(--accent-primary);
+}
+
+.chat-send-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-primary);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: 0.2s;
+}
+
+.chat-send-btn:hover {
+    color: var(--accent-secondary);
+    transform: scale(1.1);
+}
+
+.book-card-mini {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 10px;
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    transition: 0.2s;
+    text-decoration: none;
+    color: white;
+}
+
+.book-card-mini:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+    color: var(--accent-primary);
+}
+
+.book-card-mini img {
+    width: 40px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.book-card-mini .info {
+    flex: 1;
+    min-width: 0;
+}
+
+.book-card-mini .title {
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin: 0 0 2px 0;
+}
+
+.book-card-mini .author {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Vibras Hover */
+.vibra-tag {
+    transition: all 0.2s ease-in-out !important;
+}
+
+.vibra-tag:hover {
+    background-color: var(--bs-info) !important;
+    color: var(--bs-dark) !important;
+    font-weight: bold !important;
+    border-color: var(--bs-info) !important;
+}

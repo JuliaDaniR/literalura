@@ -24,6 +24,7 @@ public class Autor {
     private Integer anioMuerte;
 
     @ManyToMany(mappedBy = "autores", fetch = FetchType.EAGER)
+    @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
     private List<Libro> libros = new ArrayList<>();
     
     public Autor() {
@@ -48,5 +49,18 @@ public class Autor {
                 "\nNombre:'" + nombre + '\'' +
                 "\nAño de Nacimiento:" + anioNac +
                 "\nAño de Muerte:" + anioMuerte;
+    }
+
+    @Transient
+    public String getNombreFormateado() {
+        if (nombre == null) return "";
+        String[] partes = nombre.split(", ");
+        if (partes.length == 2) {
+            String n = partes[1].trim();
+            String a = partes[0].trim();
+            n = n.replaceAll("\\(.*?\\)", "").trim();
+            return n + " " + a;
+        }
+        return nombre;
     }
 }

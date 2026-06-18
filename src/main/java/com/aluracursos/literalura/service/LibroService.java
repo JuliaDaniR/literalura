@@ -4,7 +4,6 @@ import com.aluracursos.literalura.enumerador.Categoria;
 import com.aluracursos.literalura.enumerador.Lenguaje;
 import com.aluracursos.literalura.model.*;
 import com.aluracursos.literalura.repository.IAutorRepository;
-import com.aluracursos.literalura.repository.ILibroEliminadoRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityNotFoundException;
@@ -23,15 +22,13 @@ public class LibroService {
 
     private final ILibroRepository libroRepo;
     private final IAutorRepository autorRepo;
-    private final ILibroEliminadoRepository libroElimRepo;
     private final LibroServiceAsync serviceAsync;
     private Categoria categoria;
 
     @Autowired
-    public LibroService(ILibroRepository libroRepo, IAutorRepository autorRepo, ILibroEliminadoRepository libroElimRepo, LibroServiceAsync serviceAsync) {
+    public LibroService(ILibroRepository libroRepo, IAutorRepository autorRepo, LibroServiceAsync serviceAsync) {
         this.libroRepo = libroRepo;
         this.autorRepo = autorRepo;
-        this.libroElimRepo = libroElimRepo;
         this.serviceAsync = serviceAsync;
     }
 
@@ -48,22 +45,24 @@ public class LibroService {
         return libros;
     }
 
-    public List<Libro> listarLibrosPorNombre(String nombreLibro) {
+    public Page<Libro> listarLibrosPaginados(Pageable pageable) {
+        return libroRepo.findAllByEstadoTrue(pageable);
+    }
 
-        List<Libro> listaPorNombre = new ArrayList<>();
-        List<Libro> listado = libroRepo.findAll();
-        if (listado.isEmpty()) {
+    public List<Libro> listarLibrosPorNombre(String nombreLibro) {
+        List<Libro> listaPorNombre = libroRepo.findByTituloContainingIgnoreCaseAndEstadoTrue(nombreLibro);
+        
+        // Búsqueda flexible (Fuzzy)
+        if (listaPorNombre.isEmpty()) {
+            List<Libro> todosLosLibros = libroRepo.findAllByEstadoTrue();
+            listaPorNombre = todosLosLibros.stream()
+                .filter(libro -> esSimilitudAceptable(libro.getTitulo(), nombreLibro))
+                .collect(Collectors.toList());
+        }
+
+        if (listaPorNombre.isEmpty()) {
             serviceAsync.getDatosLibroPorNombre(nombreLibro);
-            listaPorNombre = listado.stream()
-                    .filter(l -> l.getTitulo().toLowerCase().contains(nombreLibro.toLowerCase()))
-                    .collect(Collectors.toList());
-        } else {
-            listaPorNombre = listado.stream()
-                    .filter(l -> l.getTitulo().toLowerCase().contains(nombreLibro.toLowerCase()))
-                    .collect(Collectors.toList());
-            if (listaPorNombre.isEmpty()) {
-                System.out.println("No se encontro ningun libro buscaremos en la api");
-            }
+            listaPorNombre = libroRepo.findByTituloContainingIgnoreCaseAndEstadoTrue(nombreLibro);
         }
         serviceAsync.actualizarDatosLibrosPorNombre(nombreLibro);
         return listaPorNombre;
@@ -116,25 +115,12 @@ public class LibroService {
     }
 
     public List<Libro> listarLibroPorTema(String tema) {
-        System.out.println("**************Tema "+tema);
         categoria = Categoria.valueOf(tema.toUpperCase());
-        System.out.println("*********** Categoria "+categoria);
-        List<Libro> listado = new ArrayList<>();
+        List<Libro> listado = libroRepo.findByCategoriaAndEstadoTrue(categoria);
 
-        List<Libro> libros = libroRepo.findAll();
-        if (libros.isEmpty()) {
+        if (listado.isEmpty()) {
             serviceAsync.getDatosLibroPorTema(tema);
-            listado = libros.stream()
-                    .filter(l -> l.getCategoria() == categoria)
-                    .collect(Collectors.toList());
-        } else {
-            listado = libros.stream()
-                    .filter(l -> l.getCategoria() == categoria)
-                    .collect(Collectors.toList());
-
-            if (listado.isEmpty()) {
-                System.out.println("No se encontro ningun libro buscaremos en la api");
-            }
+            listado = libroRepo.findByCategoriaAndEstadoTrue(categoria);
         }
         serviceAsync.actualizarDatosLibrosPorTema(tema);
         return listado;
@@ -150,115 +136,48 @@ public class LibroService {
     }
 
     public List<Libro> listarLibroPorIdioma(String eleccion) {
+        Lenguaje lenguajeEnum = Lenguaje.fromEspanol(eleccion.toUpperCase());
+        String lenguajeCode = lenguajeEnum.getCode();
+        List<Libro> libros = libroRepo.findAllByLenguajeAndEstadoTrue(lenguajeEnum);
 
-        List<Libro> libros = new ArrayList<>();
-        var lenguaje = Lenguaje.fromEspanol(eleccion.toUpperCase()).getCode();
-        System.out.println("*********from espanol" + lenguaje);
-
-        List<Libro> list = libroRepo.findAll();
-        if (list.isEmpty()) {
-            serviceAsync.getDatosLibroPorLenguaje(lenguaje);
-            var leng = Lenguaje.fromString(lenguaje.toUpperCase()).name();
-            System.out.println("Leng from string " + leng);
-            libros = list.stream()
-                    .filter(l -> leng.equalsIgnoreCase(l.getLenguaje().name()))
-                    .collect(Collectors.toList());
-        } else {
-            var leng = Lenguaje.fromString(lenguaje.toUpperCase()).name();
-            System.out.println("Leng from string " + leng);
-            libros = list.stream()
-                    .filter(l -> leng.equalsIgnoreCase(l.getLenguaje().name()))
-                    .collect(Collectors.toList());
-
-            if (libros.isEmpty()) {
-                System.out.println("No se encontro ningun libro buscaremos en la api");
-            }
+        if (libros.isEmpty()) {
+            serviceAsync.getDatosLibroPorLenguaje(lenguajeCode);
+            libros = libroRepo.findAllByLenguajeAndEstadoTrue(lenguajeEnum);
         }
-        serviceAsync.actualizarDatosLibrosPorLenguaje(lenguaje);
+        serviceAsync.actualizarDatosLibrosPorLenguaje(lenguajeCode);
         return libros;
     }
 
     public List<Libro> listarLibrosPorInicial(String inicial) {
+        return libroRepo.findByTituloStartingWithIgnoreCaseAndEstadoTrue(inicial);
+    }
 
-        List<Libro> list = libroRepo.findAll();
-        List<Libro> nuevaList = list.stream()
-                .filter(l -> l.getTitulo().charAt(0) == inicial.toUpperCase().charAt(0)) // Comparar con la inicial ingresada
-                .collect(Collectors.toList());
-
-        return nuevaList;
+    public List<Libro> listarLibroPorVibra(String vibra) {
+        return libroRepo.findByVibrasContainingIgnoreCaseAndEstadoTrue(vibra);
     }
 
     public List<Libro> listarLibroPorAutor(String autorIngresado) {
+        List<Libro> librosPorAutor = libroRepo.findByNombreAutorContainingIgnoreCaseAndEstadoTrue(autorIngresado);
+        
+        // Búsqueda flexible (Fuzzy)
+        if (librosPorAutor.isEmpty()) {
+            List<Libro> todosLosLibros = libroRepo.findAllByEstadoTrue();
+            librosPorAutor = todosLosLibros.stream()
+                .filter(libro -> libro.getAutores().stream()
+                    .anyMatch(a -> esSimilitudAceptable(a.getNombre(), autorIngresado) || esSimilitudAceptable(a.getNombreFormateado(), autorIngresado)))
+                .collect(Collectors.toList());
+        }
 
-        List<Libro> librosPorAutor = new ArrayList<>();
-        List<Libro> libros = libroRepo.findAll();
-        if (libros.isEmpty()) {
+        if (librosPorAutor.isEmpty()) {
             serviceAsync.getDatosLibroPorNombre(autorIngresado);
-            librosPorAutor = libros.stream()
-                    .filter(libro -> libro.getAutores().stream()
-                    .anyMatch(a -> a.getNombre().trim().toUpperCase().contains(autorIngresado.trim().toUpperCase())))// Filtrar libros que contienen al autor
-                    .collect(Collectors.toList());
-        } else {
-            librosPorAutor = libros.stream()
-                    .filter(libro -> libro.getAutores().stream()
-                    .anyMatch(a -> a.getNombre().trim().toUpperCase().contains(autorIngresado.trim().toUpperCase())))// Filtrar libros que contienen al autor
-                    .collect(Collectors.toList());
-
-            if (librosPorAutor.isEmpty()) {
-                System.out.println("No se encontro ningun libro buscaremos en la api buscaremos vuelva luego");
-            }
+            librosPorAutor = libroRepo.findByNombreAutorContainingIgnoreCaseAndEstadoTrue(autorIngresado);
         }
         serviceAsync.actualizarDatosLibrosPorNombre(autorIngresado);
         return librosPorAutor;
     }
 
     public List<Autor> listarAutores() {
-
-        List<Autor> autores = autorRepo.findAll();
-        for (Autor autor : autores) {
-            String nuevoNombre = procesarNombreAutor(autor.getNombre());
-            autor.setNombre(nuevoNombre);
-        }
-        return autores;
-    }
-
-    //Proceso el nombre del autor que viene desde la api para poder hacer la 
-    //busqueda de su biografia en wikipedia
-    private String procesarNombreAutor(String nombreAutor) {
-        StringBuilder nombreAutorFormateado = new StringBuilder();
-        String[] partes = nombreAutor.split(", ");
-        if (partes.length == 2) {
-            // Invertir el orden de las partes
-            String nombre = partes[1];
-            String apellido = partes[0];
-            // Eliminar espacios en blanco adicionales
-            nombre = nombre.trim();
-            apellido = apellido.trim();
-            // Eliminar palabras entre paréntesis en el nombre
-            nombre = eliminarPalabrasEntreParentesis(nombre);
-            // Formatear el nombre en el formato requerido
-            nombreAutorFormateado.append(nombre).append("_").append(apellido);
-        } else {
-            // Si no hay una coma, no se puede invertir, así que se agrega el nombre original
-            nombreAutorFormateado.append(nombreAutor);
-        }
-        return nombreAutorFormateado.toString();
-    }
-
-    //Elimino las palabras entre parentesis para el formato del nombre del autor
-    private String eliminarPalabrasEntreParentesis(String texto) {
-        StringBuilder textoSinParentesis = new StringBuilder();
-        boolean dentroDeParentesis = false;
-        for (char c : texto.toCharArray()) {
-            if (c == '(') {
-                dentroDeParentesis = true;
-            } else if (c == ')') {
-                dentroDeParentesis = false;
-            } else if (!dentroDeParentesis) {
-                textoSinParentesis.append(c);
-            }
-        }
-        return textoSinParentesis.toString().trim();
+        return autorRepo.findAll();
     }
 
     public List<Libro> listarLibrosDeAutoresVivosPorAnio(Integer anio) {
@@ -273,10 +192,7 @@ public class LibroService {
                 .collect(Collectors.toList());
     }
 
-    public void mostrarListaEliminados() {
-        List<Libro> librosEliminados = new ArrayList<>();
 
-    }
 
     public Map<String, String> obtenerFormatos(Long id) {
         Libro libro = libroRepo.findById(id)
@@ -313,8 +229,8 @@ public class LibroService {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
     }
 
-    public List<LibrosEliminados> listarEliminados() {
-        return libroElimRepo.findAll();
+    public List<Libro> listarEliminados() {
+        return libroRepo.findAllByEstadoFalse();
     }
 
     public void eliminarLibro(Long id) {
@@ -342,21 +258,60 @@ public class LibroService {
         return libro.orElse(null); // Manejar el caso cuando el libro no se encuentra
     }
 
+    // --- Algoritmos de Búsqueda Flexible (Levenshtein) ---
+    private boolean esSimilitudAceptable(String textoOriginal, String busqueda) {
+        if (textoOriginal == null || busqueda == null) return false;
+        String t = textoOriginal.toLowerCase();
+        String b = busqueda.toLowerCase().trim();
+        
+        if (t.contains(b)) return true;
+
+        int maxErroresPermitidos = b.length() <= 4 ? 1 : (b.length() <= 8 ? 2 : 3);
+        
+        // Compara texto completo
+        if (calcularDistanciaLevenshtein(t, b) <= maxErroresPermitidos) return true;
+        
+        // Si el usuario busca una sola palabra, buscar coincidencia en cualquier palabra del título/autor
+        String[] palabras = t.split("\\s+");
+        String[] busquedaPalabras = b.split("\\s+");
+        if (busquedaPalabras.length == 1) {
+            for (String palabra : palabras) {
+                if (calcularDistanciaLevenshtein(palabra, b) <= maxErroresPermitidos) return true;
+            }
+        }
+        
+        return false;
+    }
+
+    private int calcularDistanciaLevenshtein(CharSequence lhs, CharSequence rhs) {
+        int len0 = lhs.length() + 1;
+        int len1 = rhs.length() + 1;
+
+        int[] cost = new int[len0];
+        int[] newcost = new int[len0];
+
+        for (int i = 0; i < len0; i++) cost[i] = i;
+
+        for (int j = 1; j < len1; j++) {
+            newcost[0] = j;
+            for (int i = 1; i < len0; i++) {
+                int match = (lhs.charAt(i - 1) == rhs.charAt(j - 1)) ? 0 : 1;
+                int cost_replace = cost[i - 1] + match;
+                int cost_insert  = cost[i] + 1;
+                int cost_delete  = newcost[i - 1] + 1;
+                newcost[i] = Math.min(Math.min(cost_insert, cost_delete), cost_replace);
+            }
+            int[] swap = cost; cost = newcost; newcost = swap;
+        }
+        return cost[len0 - 1];
+    }
+
     public void restaurarLibro(Long id) {
         Optional<Libro> libro = libroRepo.findById(id);
         if (libro.isPresent()) {
             Libro libroEntidad = libro.get();
             libroEntidad.setEstado(true);
-            libroRepo.save(libroEntidad); // Guardar el cambio de estado en la base de datos
-
-            // Eliminar el registro de LibrosEliminados
-            List<LibrosEliminados> lista = libroElimRepo.findAll();
-            for (LibrosEliminados librosEliminados : lista) {
-                if (librosEliminados.getLibroId().equals(id)) {
-                    libroElimRepo.deleteById(librosEliminados.getId());
-                    break;
-                }
-            }
+            libroRepo.save(libroEntidad);
         }
     }
 

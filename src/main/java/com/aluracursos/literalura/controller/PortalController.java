@@ -29,12 +29,12 @@ public class PortalController {
     public String obtenerTodosLosLibros(ModelMap model) {
 
     //Agregue esto para poder agilizar la carga de la pagina principal
-    Pageable top10Pageable = PageRequest.of(0, 10);
+    Pageable top10Pageable = PageRequest.of(0, 12);
     Pageable top22Pageable = PageRequest.of(0, 10);
 
     List<Libro> libros = libroRepo.findTop10ByEstadoTrueOrderByTitulo(top10Pageable);
     List<Libro> masDescargados = libroRepo.findTop10ByEstadoTrueOrderByCantidadDescargasDesc(top10Pageable);
-    List<Autor> autores = libroService.listarAutores();
+    List<Autor> autores = libroService.listarAutores(org.springframework.data.domain.PageRequest.of(0, 8));
     List<Libro> librosEspanol = libroRepo.findTop10ByLenguajeAndEstadoTrueOrderByCantidadDescargasDesc(Lenguaje.ESPANOL, top10Pageable);
 
     if (masDescargados.isEmpty()) {
@@ -42,7 +42,7 @@ public class PortalController {
     }
 
     model.addAttribute("librosEspanol", librosEspanol);
-    model.addAttribute("autores", autores.stream().limit(10));
+    model.addAttribute("autores", autores);
     model.addAttribute("libros", libros);
     model.addAttribute("masDescargados", masDescargados);
     model.addAttribute("tipos", Categoria.values());

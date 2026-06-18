@@ -27,7 +27,7 @@ public enum Lenguaje {
     POLACO("pl", "Polaco"),
     CHINO("zh", "Chino"),
     JAPONES("ja", "Japones"),
-    OTRO("other", "Otro"); // Valor por defecto
+    OTRO("other", "Otro"); 
 
     @Getter
     private final String code;
@@ -45,7 +45,7 @@ public enum Lenguaje {
                 return lenguaje;
             }
         }
-        return OTRO; // Retorna el valor por defecto si no se encuentra coincidencia
+        return OTRO; 
     }
 
     public static Lenguaje fromEspanol(String text) {
@@ -54,7 +54,7 @@ public enum Lenguaje {
                 return lenguaje;
             }
         }
-        return OTRO; // Retorna el valor por defecto si no se encuentra coincidencia
+        return OTRO; 
     }
 
     public static class LenguajeDeserializer extends JsonDeserializer<Lenguaje> {

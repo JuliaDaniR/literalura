@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html th:replace="~{fragments/layout :: layout(~{::title}, ~{::main})}" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'Literalura - Error ' + ${errorCode ?: 'Desconocido'}">Literalura - Error</title>
+</head>
+<body>
+    <main class="d-flex align-items-center justify-content-center" style="min-height: 70vh;">
+        <div class="glass-card text-center p-5" style="max-width: 600px; width: 100%;">
+            <div class="mb-4">
+                <!-- Icono dinámico según el error -->
+                <i th:if="${errorCode == '404'}" class="fa-solid fa-map-location-dot fa-5x text-warning"></i>
+                <i th:if="${errorCode == '500'}" class="fa-solid fa-triangle-exclamation fa-5x text-danger"></i>
+                <i th:if="${errorCode != '404' and errorCode != '500'}" class="fa-solid fa-circle-exclamation fa-5x text-secondary"></i>
+            </div>
+            
+            <h1 class="display-1 fw-bold text-white mb-2" th:text="${errorCode ?: 'Oops!'}">404</h1>
+            <h3 class="mb-3 text-info" th:text="${errorTitle ?: 'Algo salió mal'}">Página no encontrada</h3>
+            <p class="text-secondary mb-5 fs-5" th:text="${errorMessage ?: 'Se ha producido un error inesperado. Por favor, intenta de nuevo.'}">
+                Lo sentimos, pero este libro (o página) se ha perdido en los confines de nuestra biblioteca.
+            </p>
+            
+            <a href="/" class="btn-modern text-decoration-none d-inline-block">
+                <i class="fa-solid fa-house me-2"></i> Volver al Inicio
+            </a>
+        </div>
+    </main>
+</body>
+</html>
