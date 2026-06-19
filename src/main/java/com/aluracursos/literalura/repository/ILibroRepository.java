@@ -30,7 +30,7 @@ public interface ILibroRepository  extends JpaRepository<Libro,Long> {
     @Query("SELECT l FROM Libro l WHERE l.estado = true ORDER BY l.cantidadDescargas DESC")
     List<Libro> findTop10ByEstadoTrueOrderByCantidadDescargasDesc(Pageable pageable);
 
-    @Query("SELECT l FROM Libro l WHERE l.estado = true ORDER BY l.cantidadDescargas DESC")
+    @Query("SELECT l FROM Libro l WHERE l.estado = true AND l.lenguaje = :lenguaje ORDER BY l.cantidadDescargas DESC")
     List<Libro> findTop10ByLenguajeAndEstadoTrueOrderByCantidadDescargasDesc(@Param("lenguaje") Lenguaje lenguaje, Pageable pageable);
 
     // Nuevos métodos para Fase 1

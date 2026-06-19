@@ -191,7 +191,7 @@
             fetch(`/libros/resumen/${libroId}?recrear=${recrear}`, { method: 'POST' })
                 .then(response => response.text())
                 .then(texto => {
-                    innerText.innerHTML = `<p class="mb-0">${texto}</p>`;
+                    innerText.innerHTML = `<div class="mb-0">${texto}</div>`;
                     if (btnGenerar) btnGenerar.innerHTML = '<i class="fa-solid fa-check"></i> Generado';
                     if (btnRegenerar) {
                         btnRegenerar.disabled = false;
@@ -326,6 +326,117 @@
                 chatBody.scrollTop = chatBody.scrollHeight;
             }
         });
+
+        // Polling para Estado de Múltiples Búsquedas en Curso
+        document.addEventListener('DOMContentLoaded', function() {
+            const toastContainer = document.getElementById('busquedaToastContainer');
+            if (toastContainer && typeof bootstrap !== 'undefined') {
+                const toastsState = {}; // Mapea id a su estado actual
+                
+                function pollEstadoBusqueda() {
+                    fetch('/estadoBusqueda')
+                        .then(response => response.json())
+                        .then(busquedas => {
+                            if (!Array.isArray(busquedas)) return;
+                            
+                            busquedas.forEach(data => {
+                                let toastEl = document.getElementById('toast-' + data.id);
+                                let isNew = false;
+                                
+                                if (!toastEl) {
+                                    isNew = true;
+                                    toastEl = document.createElement('div');
+                                    toastEl.id = 'toast-' + data.id;
+                                    toastEl.className = 'toast glass-panel border border-info border-opacity-50 shadow-lg mb-3';
+                                    toastEl.setAttribute('role', 'alert');
+                                    toastEl.setAttribute('aria-live', 'assertive');
+                                    toastEl.setAttribute('aria-atomic', 'true');
+                                    toastEl.setAttribute('data-bs-autohide', 'false');
+                                    toastEl.style.borderRadius = '12px';
+                                    toastEl.style.overflow = 'hidden';
+                                    
+                                    toastEl.innerHTML = `
+                                        <div class="toast-header bg-dark text-white border-bottom border-info border-opacity-25 py-2">
+                                            <strong class="me-auto fs-6 toast-title"></strong>
+                                            <button type="button" class="btn btn-sm btn-link text-white p-0 me-3" data-bs-toggle="collapse" data-bs-target="#collapse-body-${data.id}" title="Minimizar">
+                                                <i class="fa-solid fa-minus"></i>
+                                            </button>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close" title="Cerrar"></button>
+                                        </div>
+                                        <div id="collapse-body-${data.id}" class="collapse show">
+                                            <div class="toast-body text-white p-3 toast-content"></div>
+                                        </div>
+                                    `;
+                                    toastContainer.appendChild(toastEl);
+                                    toastsState[data.id] = { wasInProgress: false, userClosed: false, bsToast: new bootstrap.Toast(toastEl) };
+                                    
+                                    // Evitar que se vuelva a abrir si el usuario lo cierra manualmente
+                                    toastEl.addEventListener('hidden.bs.toast', () => {
+                                        const currentState = toastsState[data.id];
+                                        if (currentState && currentState.wasInProgress) {
+                                            currentState.userClosed = true;
+                                        }
+                                    });
+                                }
+                                
+                                const state = toastsState[data.id];
+                                const titleEl = toastEl.querySelector('.toast-title');
+                                const bodyEl = toastEl.querySelector('.toast-content');
+
+                                if (data.busquedaEnCurso) {
+                                    if (!toastEl.classList.contains('show') && !state.userClosed) {
+                                        state.bsToast.show();
+                                    }
+                                    titleEl.innerHTML = '<i class="fa-solid fa-satellite-dish me-2 text-warning" style="animation: pulse 1s infinite"></i> Buscando...';
+                                    bodyEl.innerHTML = '<div class="small text-info mb-2">' + data.tipoBusqueda.replace(/\\n/g, '<br>') + '</div>' + 
+                                                          '<div class="d-flex align-items-center mb-1"><div class="spinner-border spinner-border-sm text-info me-2"></div> ' + 
+                                                          'Descargando libros...</div>' +
+                                                          '<div class="small text-light ms-4"><i class="fa-solid fa-book-open me-1 text-info"></i> ' + data.cantidadResultadosParcial + ' encontrados</div>';
+                                    state.wasInProgress = true;
+                                } else {
+                                    if (state.wasInProgress) {
+                                        let href = '/libros/listar';
+                                        if (data.tipoBusqueda.includes('Nombre del libro:')) {
+                                            href = '/libros/listar?nombre=' + encodeURIComponent(data.tipoBusqueda.split('Nombre del libro:')[1].trim());
+                                        } else if (data.tipoBusqueda.includes('Libros más descargados')) {
+                                            href = '/libros/listar?masPopulares=true';
+                                        } else if (data.tipoBusqueda.includes('Lenguaje:')) {
+                                            href = '/libros/listar?idioma=' + encodeURIComponent(data.tipoBusqueda.split('Lenguaje:')[1].trim());
+                                        } else if (data.tipoBusqueda.includes('Palabra Clave:')) {
+                                            href = '/libros/listar?palabraClave=' + encodeURIComponent(data.tipoBusqueda.split('Palabra Clave:')[1].trim());
+                                        } else if (data.tipoBusqueda.includes('Categoria:')) {
+                                            href = '/libros/listar?tipoCategoria=' + encodeURIComponent(data.tipoBusqueda.split('Categoria:')[1].trim());
+                                        } else if (data.tipoBusqueda.includes('Vivos hasta')) {
+                                            href = '/libros/listar?anio=' + encodeURIComponent(data.tipoBusqueda.split('Vivos hasta')[1].trim());
+                                        }
+
+                                        titleEl.innerHTML = '<i class="fa-solid fa-check-circle me-2 text-success"></i> ¡Finalizada!';
+                                        bodyEl.innerHTML = '<div class="small text-info mb-2">' + data.tipoBusqueda.replace(/\\n/g, '<br>') + '</div>' + 
+                                                              'Se guardaron <strong>' + data.cantidadResultados + '</strong> libros.<br>' +
+                                                              '<a href="' + href + '" class="btn btn-sm btn-outline-info mt-3 w-100"><i class="fa-solid fa-eye me-1"></i> Ver Resultados</a>';
+                                        state.wasInProgress = false;
+                                        state.userClosed = false; // Resetear para forzar que vea el final
+                                        
+                                        // Forzar expansión si estaba minimizado
+                                        let collapseEl = document.getElementById('collapse-body-' + data.id);
+                                        if (collapseEl && !collapseEl.classList.contains('show')) {
+                                            new bootstrap.Collapse(collapseEl, {toggle: false}).show();
+                                        }
+                                        
+                                        if (!toastEl.classList.contains('show')) {
+                                            state.bsToast.show();
+                                        }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.debug("Polling estadoBusqueda:", err));
+                }
+                
+                setInterval(pollEstadoBusqueda, 2000);
+                pollEstadoBusqueda();
+            }
+        });
     </script>
 
     <!-- Chatbot UI HTML -->
@@ -350,6 +461,11 @@
             <input type="text" class="chat-input" id="chatbotInput" placeholder="Ej: Quiero terror clásico..." autocomplete="off">
             <button class="chat-send-btn" id="chatbotSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
         </div>
+    </div>
+
+    <!-- Toast Container para Múltiples Búsquedas en Curso -->
+    <div class="toast-container position-fixed bottom-0 start-0 p-3" style="z-index: 1055;" id="busquedaToastContainer">
+        <!-- Los Toasts se inyectan dinámicamente aquí -->
     </div>
 </body>
 </html>

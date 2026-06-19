@@ -2,25 +2,19 @@ package com.aluracursos.literalura.service;
 
 import com.aluracursos.literalura.enumerador.Categoria;
 import com.aluracursos.literalura.enumerador.Lenguaje;
+import com.aluracursos.literalura.model.EstadoBusqueda;
 import com.aluracursos.literalura.model.Libro;
 import com.aluracursos.literalura.repository.IAutorRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import org.springframework.beans.factory.annotation.Value;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class LibroServiceAsync {
@@ -30,23 +24,14 @@ public class LibroServiceAsync {
     final String NOMBRE = "?search=";
     final String LENGUAJE = "?languages=";
     final String PALABRA_CLAVE = "?topic=";
+    
     private final ILibroRepository libroRepo;
     private final IAutorRepository autorRepo;
     private final ConversorAClaseLibroService conversorAClaseLibroService;
     private final ConsumoApi consumoApi;
-    private Categoria categoria;
 
-    @Value("${busqueda.enCurso}")
-    private boolean busquedaEnCurso;
-
-    @Value("${busqueda.cantidadResultado}")
-    private Integer cantidadResultados;
-
-    @Value("${busqueda.tipoBusqueda}")
-    private String tipoBusqueda;
-
-    @Value("${busqueda.cantidadResultadoParcial}")
-    private Integer cantidadResultadosParcial;
+    private final ConcurrentHashMap<String, EstadoBusqueda> busquedasActivas = new ConcurrentHashMap<>();
+    private Map<String, Long> ultimasActualizaciones = new ConcurrentHashMap<>();
 
     @Autowired
     public LibroServiceAsync(ILibroRepository libroRepo, IAutorRepository autorRepo, ConversorAClaseLibroService conversorAClaseLibroService, ConsumoApi consumoApi) {
@@ -56,104 +41,191 @@ public class LibroServiceAsync {
         this.consumoApi = consumoApi;
     }
 
-    @Async("taskExecutor")
-    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorNombre(String nombreLibro) {
-        return CompletableFuture.supplyAsync(() -> {
-            busquedaEnCurso = true;
-            cantidadResultados = 0;
-            List<Libro> lista = getDatosLibroPorNombre(nombreLibro);
-            busquedaEnCurso = false;
-            cantidadResultados = lista.size();
-            tipoBusqueda = "Para la busqueda de: \nNombre del libro: " + nombreLibro.toUpperCase();
-            return lista;
+    public Collection<EstadoBusqueda> getBusquedasActivas() {
+        return busquedasActivas.values();
+    }
+
+    private boolean isActualizadoRecientemente(String tipoBusqueda) {
+        Long lastTime = ultimasActualizaciones.get(tipoBusqueda);
+        return lastTime != null && (System.currentTimeMillis() - lastTime) < 300000; // 5 minutos de cooldown
+    }
+
+    private boolean isBusquedaDuplicada(String tipoBusqueda) {
+        return busquedasActivas.values().stream()
+                .anyMatch(e -> e.isBusquedaEnCurso() && e.getTipoBusqueda().equals(tipoBusqueda));
+    }
+
+    private void programarLimpieza(String id) {
+        CompletableFuture.runAsync(() -> {
+            try {
+                Thread.sleep(15000); // Mantener el cartel finalizado por 15 segundos
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            busquedasActivas.remove(id);
         });
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<List<Libro>> actualizarDatosLibrosMasDescargados() {
-        return CompletableFuture.supplyAsync(() -> {
-            busquedaEnCurso = true;
-            cantidadResultados = 0;
-            List<Libro> lista = getDatosLibroMasDescargados();
-            busquedaEnCurso = false;
-            cantidadResultados = lista.size();
-            tipoBusqueda = "Para la busqueda de: \nLibros más descargados";
-            return lista;
-        });
+    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorNombre(String nombreLibro, boolean mostrarCartel) {
+        String tipoBusq = "Para la busqueda de: \nNombre del libro: " + nombreLibro.toUpperCase();
+        String id = null;
+        EstadoBusqueda estado = null;
+        
+        synchronized (busquedasActivas) {
+            if (isBusquedaDuplicada(tipoBusq) || isActualizadoRecientemente(tipoBusq)) return CompletableFuture.completedFuture(new ArrayList<>());
+            if (mostrarCartel) {
+                id = UUID.randomUUID().toString();
+                estado = new EstadoBusqueda(id, true, 0, 0, tipoBusq);
+                busquedasActivas.put(id, estado);
+            }
+        }
+        
+        List<Libro> lista = getDatosLibroPorNombre(nombreLibro, estado);
+        
+        if (estado != null) {
+            estado.setCantidadResultados(lista.size());
+            estado.setBusquedaEnCurso(false);
+            programarLimpieza(id);
+        }
+        ultimasActualizaciones.put(tipoBusq, System.currentTimeMillis());
+        return CompletableFuture.completedFuture(lista);
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorLenguaje(String lenguajeLibro) {
-        return CompletableFuture.supplyAsync(() -> {
-            busquedaEnCurso = true;
-            cantidadResultados = 0;
-            List<Libro> lista = getDatosLibroPorLenguaje(lenguajeLibro);
-            busquedaEnCurso = false;
-            cantidadResultados = lista.size();
-            Lenguaje leng = Lenguaje.fromString(lenguajeLibro);
-            tipoBusqueda = "Para la busqueda de: \nLenguaje: " + leng;
-            return lista;
-        });
+    public CompletableFuture<List<Libro>> actualizarDatosLibrosMasDescargados(boolean mostrarCartel) {
+        String tipoBusq = "Para la busqueda de: \nLibros más descargados";
+        String id = null;
+        EstadoBusqueda estado = null;
+        
+        synchronized (busquedasActivas) {
+            if (isBusquedaDuplicada(tipoBusq) || isActualizadoRecientemente(tipoBusq)) return CompletableFuture.completedFuture(new ArrayList<>());
+            if (mostrarCartel) {
+                id = UUID.randomUUID().toString();
+                estado = new EstadoBusqueda(id, true, 0, 0, tipoBusq);
+                busquedasActivas.put(id, estado);
+            }
+        }
+        
+        List<Libro> lista = getDatosLibroMasDescargados(estado);
+        
+        if (estado != null) {
+            estado.setCantidadResultados(lista.size());
+            estado.setBusquedaEnCurso(false);
+            programarLimpieza(id);
+        }
+        ultimasActualizaciones.put(tipoBusq, System.currentTimeMillis());
+        return CompletableFuture.completedFuture(lista);
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorPalabraClave(String palabraClave) {
-        return CompletableFuture.supplyAsync(() -> {
-            busquedaEnCurso = true;
-            cantidadResultados = 0;
-            List<Libro> lista = getDatosLibroPorPalabraClave(palabraClave);
-            busquedaEnCurso = false;
-            cantidadResultados = lista.size();
-            tipoBusqueda = "Para la busqueda de: \nPalabra Clave: " + palabraClave.toUpperCase();
-            return lista;
-        });
+    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorLenguaje(String lenguajeLibro, boolean mostrarCartel) {
+        Lenguaje leng = Lenguaje.fromString(lenguajeLibro);
+        String tipoBusq = "Para la busqueda de: \nLenguaje: " + leng;
+        String id = null;
+        EstadoBusqueda estado = null;
+        
+        synchronized (busquedasActivas) {
+            if (isBusquedaDuplicada(tipoBusq) || isActualizadoRecientemente(tipoBusq)) return CompletableFuture.completedFuture(new ArrayList<>());
+            if (mostrarCartel) {
+                id = UUID.randomUUID().toString();
+                estado = new EstadoBusqueda(id, true, 0, 0, tipoBusq);
+                busquedasActivas.put(id, estado);
+            }
+        }
+        
+        List<Libro> lista = getDatosLibroPorLenguaje(lenguajeLibro, estado);
+        
+        if (estado != null) {
+            estado.setCantidadResultados(lista.size());
+            estado.setBusquedaEnCurso(false);
+            programarLimpieza(id);
+        }
+        ultimasActualizaciones.put(tipoBusq, System.currentTimeMillis());
+        return CompletableFuture.completedFuture(lista);
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorTema(String tema) {
-        return CompletableFuture.supplyAsync(() -> {
-            busquedaEnCurso = true;
-            cantidadResultados = 0;
-            List<Libro> lista = getDatosLibroPorTema(tema);
-            busquedaEnCurso = false;
-            cantidadResultados = lista.size();
-            tipoBusqueda = "Para la busqueda de: \nCategoria: " + tema.toUpperCase();
-            return lista;
-        });
+    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorPalabraClave(String palabraClave, boolean mostrarCartel) {
+        String tipoBusq = "Para la busqueda de: \nPalabra Clave: " + palabraClave.toUpperCase();
+        String id = null;
+        EstadoBusqueda estado = null;
+        
+        synchronized (busquedasActivas) {
+            if (isBusquedaDuplicada(tipoBusq) || isActualizadoRecientemente(tipoBusq)) return CompletableFuture.completedFuture(new ArrayList<>());
+            if (mostrarCartel) {
+                id = UUID.randomUUID().toString();
+                estado = new EstadoBusqueda(id, true, 0, 0, tipoBusq);
+                busquedasActivas.put(id, estado);
+            }
+        }
+        
+        List<Libro> lista = getDatosLibroPorPalabraClave(palabraClave, estado);
+        
+        if (estado != null) {
+            estado.setCantidadResultados(lista.size());
+            estado.setBusquedaEnCurso(false);
+            programarLimpieza(id);
+        }
+        ultimasActualizaciones.put(tipoBusq, System.currentTimeMillis());
+        return CompletableFuture.completedFuture(lista);
     }
 
     @Async("taskExecutor")
-    public CompletableFuture<List<Libro>> actualizarDatosAutoresVivosPorAnio(Integer anio) {
-        return CompletableFuture.supplyAsync(() -> {
-            busquedaEnCurso = true;
-            cantidadResultados = 0;
-            List<Libro> lista = getDatosAutorVivoPorAño(anio);
-            busquedaEnCurso = false;
-            cantidadResultados = lista.size();
-            tipoBusqueda = "Para la busqueda de: \nVivos hasta " + anio;
-            return lista;
-        });
+    public CompletableFuture<List<Libro>> actualizarDatosLibrosPorTema(String tema, boolean mostrarCartel) {
+        String tipoBusq = "Para la busqueda de: \nCategoria: " + tema.toUpperCase();
+        String id = null;
+        EstadoBusqueda estado = null;
+        
+        synchronized (busquedasActivas) {
+            if (isBusquedaDuplicada(tipoBusq) || isActualizadoRecientemente(tipoBusq)) return CompletableFuture.completedFuture(new ArrayList<>());
+            if (mostrarCartel) {
+                id = UUID.randomUUID().toString();
+                estado = new EstadoBusqueda(id, true, 0, 0, tipoBusq);
+                busquedasActivas.put(id, estado);
+            }
+        }
+        
+        List<Libro> lista = getDatosLibroPorTema(tema, estado);
+        
+        if (estado != null) {
+            estado.setCantidadResultados(lista.size());
+            estado.setBusquedaEnCurso(false);
+            programarLimpieza(id);
+        }
+        ultimasActualizaciones.put(tipoBusq, System.currentTimeMillis());
+        return CompletableFuture.completedFuture(lista);
     }
 
-    public boolean isBusquedaEnCurso() {
-        return busquedaEnCurso;
+    @Async("taskExecutor")
+    public CompletableFuture<List<Libro>> actualizarDatosAutoresVivosPorAnio(Integer anio, boolean mostrarCartel) {
+        String tipoBusq = "Para la busqueda de: \nAutor Vivo por Año: " + anio;
+        String id = null;
+        EstadoBusqueda estado = null;
+        
+        synchronized (busquedasActivas) {
+            if (isBusquedaDuplicada(tipoBusq) || isActualizadoRecientemente(tipoBusq)) return CompletableFuture.completedFuture(new ArrayList<>());
+            if (mostrarCartel) {
+                id = UUID.randomUUID().toString();
+                estado = new EstadoBusqueda(id, true, 0, 0, tipoBusq);
+                busquedasActivas.put(id, estado);
+            }
+        }
+        
+        List<Libro> lista = getDatosAutorVivoPorAño(anio, estado);
+        
+        if (estado != null) {
+            estado.setCantidadResultados(lista.size());
+            estado.setBusquedaEnCurso(false);
+            programarLimpieza(id);
+        }
+        ultimasActualizaciones.put(tipoBusq, System.currentTimeMillis());
+        return CompletableFuture.completedFuture(lista);
     }
 
-    public int getCantidadResultados() {
-        return cantidadResultados;
-    }
-
-    public int getCantidadResultadosParcial() {
-        return cantidadResultadosParcial;
-    }
-
-    public String getTipoBusqueda() {
-        return tipoBusqueda;
-    }
-
-    private List<Libro> procesarPaginacion(String urlInicial, boolean esPorTema, String temaNombre) {
+    private List<Libro> procesarPaginacion(String urlInicial, boolean esPorTema, String temaNombre, EstadoBusqueda estado) {
         List<Libro> listado = new ArrayList<>();
-        cantidadResultadosParcial = 0;
+        if (estado != null) estado.setCantidadResultadosParcial(0);
         String url = urlInicial;
         
         while (url != null) {
@@ -165,75 +237,105 @@ public class LibroServiceAsync {
             }
             listado.addAll(lista);
             url = obtenerSiguientePagina(url);
-            cantidadResultadosParcial += lista.size();
+            if (estado != null) estado.setCantidadResultadosParcial(estado.getCantidadResultadosParcial() + lista.size());
         }
-        System.out.println("Búsqueda finalizada");
+        if (estado != null) System.out.println("Búsqueda finalizada: " + estado.getTipoBusqueda());
         return listado;
     }
 
     public List<Libro> getDatosLibroPorNombre(String nombreLibro) {
+        return getDatosLibroPorNombre(nombreLibro, null);
+    }
+
+    public List<Libro> getDatosLibroPorNombre(String nombreLibro, EstadoBusqueda estado) {
         String url = URL_BASE + NOMBRE + nombreLibro.replace(" ", "+");
-        return procesarPaginacion(url, false, null);
+        return procesarPaginacion(url, false, null, estado);
     }
 
     public List<Libro> getDatosLibroPorLenguaje(String lenguajeLibro) {
+        return getDatosLibroPorLenguaje(lenguajeLibro, null);
+    }
+
+    public List<Libro> getDatosLibroPorLenguaje(String lenguajeLibro, EstadoBusqueda estado) {
         String url = URL_BASE + LENGUAJE + lenguajeLibro;
-        return procesarPaginacion(url, false, null);
+        return procesarPaginacion(url, false, null, estado);
     }
 
     public List<Libro> getDatosLibroPorPalabraClave(String palabraClave) {
+        return getDatosLibroPorPalabraClave(palabraClave, null);
+    }
+
+    public List<Libro> getDatosLibroPorPalabraClave(String palabraClave, EstadoBusqueda estado) {
         String url = URL_BASE + PALABRA_CLAVE + palabraClave.replace(" ", "+");
-        return procesarPaginacion(url, false, null);
+        return procesarPaginacion(url, false, null, estado);
     }
 
     public List<Libro> getDatosLibroPorTema(String tema) {
+        return getDatosLibroPorTema(tema, null);
+    }
+
+    public List<Libro> getDatosLibroPorTema(String tema, EstadoBusqueda estado) {
         Categoria cate = Categoria.fromEspanol(tema);
         String temaIngles = cate.getEnIngles();
         String url = URL_BASE + PALABRA_CLAVE + temaIngles.replace(" ", "+");
-        return procesarPaginacion(url, true, cate.name());
+        return procesarPaginacion(url, true, cate.name(), estado);
     }
 
     public List<Libro> getDatosLibroMasDescargados() {
+        return getDatosLibroMasDescargados(null);
+    }
+
+    public List<Libro> getDatosLibroMasDescargados(EstadoBusqueda estado) {
         List<Libro> listado = new ArrayList<>();
-        cantidadResultadosParcial = 0;
-        for (int i = 1; i < 6; i++) {
+        if (estado != null) estado.setCantidadResultadosParcial(0);
+        for (int i = 1; i < 5; i++) { // 4 páginas = 128 libros
             String url = "https://gutendex.com/books/?page=" + i + "&sort=downloads";
             List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
-            listado.addAll(lista);
-
-            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
+            
+            for (Libro libro : lista) {
+                if (listado.size() < 100) {
+                    listado.add(libro);
+                }
+            }
+            
+            if (estado != null) estado.setCantidadResultadosParcial(listado.size());
+            if (listado.size() >= 100) break;
         }
         return listado;
     }
 
     public List<Libro> getDatos10LibroMasDescargados() {
-        List<Libro> listado = new ArrayList<>();
-        cantidadResultadosParcial = 0;
-        for (int i = 1; i < 3; i++) {
-            String url = "https://gutendex.com/books/?page=" + i + "&sort=downloads";
-            busquedaEnCurso = true;
-            cantidadResultados = 0;
-            List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
-            listado.addAll(lista);
-            
-            cantidadResultadosParcial = cantidadResultadosParcial + lista.size();
-            System.out.println("parcial "+cantidadResultadosParcial);
-            cantidadResultados = cantidadResultadosParcial;
-        }
-        tipoBusqueda = "Aquí hay algunos de los Libros más descargados";
-        busquedaEnCurso = false;
+        return getDatos10LibroMasDescargados(null);
+    }
 
+    public List<Libro> getDatos10LibroMasDescargados(EstadoBusqueda estado) {
+        List<Libro> listado = new ArrayList<>();
+        if (estado != null) estado.setCantidadResultadosParcial(0);
+        for (int i = 1; i < 2; i++) { // 1 página = 32 libros
+            String url = "https://gutendex.com/books/?page=" + i + "&sort=downloads";
+            List<Libro> lista = conversorAClaseLibroService.consultaApi(url);
+            
+            for (Libro libro : lista) {
+                if (listado.size() < 10) {
+                    listado.add(libro);
+                }
+            }
+            
+            if (estado != null) estado.setCantidadResultadosParcial(listado.size());
+            if (listado.size() >= 10) break;
+        }
         return listado;
     }
 
     public List<Libro> getDatosAutorVivoPorAño(Integer anio) {
-        String url = "https://gutendex.com/books/?author_year_end=" + anio;
-        return procesarPaginacion(url, false, null);
+        return getDatosAutorVivoPorAño(anio, null);
     }
 
-    // Este metodo me permite agilizar la busqueda en la api 
-    // Porque busca en la pagina siguiente que hay resultados
-    // a traves de next y no recorre todas que demoraria demasiado
+    public List<Libro> getDatosAutorVivoPorAño(Integer anio, EstadoBusqueda estado) {
+        String url = "https://gutendex.com/books/?author_year_end=" + anio;
+        return procesarPaginacion(url, false, null, estado);
+    }
+
     private String obtenerSiguientePagina(String urlActual) {
         try {
             String jsonResponse = consumoApi.obtenerDatos(urlActual);

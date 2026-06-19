@@ -21,7 +21,7 @@
                         </button>
                     </div>
                     <a th:href="@{/libros/detalles/__${libro.id}__}">
-                        <img th:src="${libro.imagen}" th:alt="${libro.titulo}" onerror="this.src='/img/No-disponible-libro.jpg';">
+                        <img th:src="${libro.imagen}" th:alt="${libro.titulo}" loading="lazy" onerror="this.src='/img/No-disponible-libro.jpg';">
                     </a>
                     <h3 class="book-title" th:text="${libro.titulo}"></h3>
                     <div class="book-author mb-2">
@@ -35,12 +35,9 @@
                     </div>
                     
                     <div class="mt-auto w-100 d-flex justify-content-between align-items-center">
-                        <span class="badge bg-secondary" th:text="${libro.lenguaje}"></span>
+                        <span class="badge bg-secondary" th:text="${libro.lenguaje.languageName}"></span>
                         <div class="d-flex gap-2">
                             <a th:href="@{/libros/detalles/__${libro.id}__}" class="btn btn-sm btn-outline-light rounded-pill">Ver</a>
-                            <form th:action="@{/libros/eliminar/__${libro.id}__}" method="get" class="m-0">                                        
-                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"><i class="fa-solid fa-trash"></i></button>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -86,15 +83,52 @@
         </section>
 
         <!-- Resultados de Autores -->
-        <section class="mb-5" th:if="${not #lists.isEmpty(listadoAutores)}">
-            <h2 class="mb-4"><i class="fa-solid fa-pen-nib me-2 text-info"></i>Autores Encontrados</h2>
-            <div class="row g-3">
-                <div class="col-md-4 col-sm-6" th:each="autor : ${listadoAutores}">
-                    <div class="glass-card text-center p-3 h-100 d-flex flex-column table-hover">
-                        <h4 class="mb-3 text-white fw-bold" th:text="${autor.nombreFormateado}"></h4>
+        <section class="mb-5" th:if="${filtros.listarAutores != null}">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                <h2 class="mb-0"><i class="fa-solid fa-pen-nib me-2 text-info"></i>Autores Registrados</h2>
+                
+                <!-- Buscador y Filtros -->
+                <form action="/libros/listar" method="get" class="d-flex gap-2">
+                    <input type="hidden" name="listarAutores" value="true">
+                    
+                    <div class="input-group input-group-sm" style="max-width: 250px;">
+                        <span class="input-group-text bg-dark text-info border-info border-opacity-50"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" name="nombreAutorFiltro" th:value="${filtros.nombreAutorFiltro}" class="form-control bg-dark text-white border-info border-opacity-50 shadow-none" placeholder="Buscar por nombre..." oninput="filtrarAutoresEnTiempoReal(this.value)">
+                    </div>
+                    
+                    <select name="ordenAutores" class="form-select form-select-sm bg-dark text-white border-info border-opacity-50 shadow-none" style="width: auto; cursor: pointer;" onchange="this.form.submit()">
+                        <option value="relevancia" th:selected="${filtros.ordenAutores == 'relevancia' || filtros.ordenAutores == null}">🌟 Más Relevantes</option>
+                        <option value="alfabetico" th:selected="${filtros.ordenAutores == 'alfabetico'}">🔤 A - Z</option>
+                    </select>
+                </form>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(listadoAutores)}" class="text-center py-5 glass-panel border-info border-opacity-25 rounded-4">
+                <i class="fa-solid fa-ghost fa-3x text-secondary mb-3 opacity-50"></i>
+                <h5 class="text-secondary">No se encontraron autores con ese nombre</h5>
+                <a th:href="@{/libros/listar(listarAutores=true)}" class="btn btn-sm btn-outline-info mt-3 rounded-pill px-4">Ver Todos</a>
+            </div>
+            
+            <div id="mensajeSinResultadosJS" class="text-center py-5 glass-panel border-info border-opacity-25 rounded-4 d-none mt-3">
+                <i class="fa-solid fa-ghost fa-3x text-secondary mb-3 opacity-50"></i>
+                <h5 class="text-secondary">No hay coincidencias en pantalla</h5>
+            </div>
+
+            <div class="row g-3" th:if="${not #lists.isEmpty(listadoAutores)}" id="contenedorTarjetasAutores">
+                <div class="col-md-4 col-sm-6 tarjeta-autor-item" th:each="autor : ${listadoAutores}" th:data-nombres="${autor.nombreFormateado} + ' ' + ${autor.nombre}">
+                    <div class="glass-card text-center p-4 h-100 d-flex flex-column table-hover" style="transition: transform 0.3s;">
+                        <div class="rounded-circle bg-dark d-inline-flex justify-content-center align-items-center mb-3 shadow mx-auto" style="width: 60px; height: 60px;">
+                            <i class="fa-solid fa-feather-pointed fs-3 text-info opacity-75"></i>
+                        </div>
+                        <h5 class="mb-1 text-white fw-bold" th:text="${autor.nombreFormateado}"></h5>
+                        <small class="text-secondary d-block mb-2">
+                            <i class="fa-solid fa-calendar-days me-1"></i> 
+                            <span th:text="${autor.anioNac} ?: '?'"></span> - <span th:text="${autor.anioMuerte} ?: 'Presente'"></span>
+                        </small>
+                        <p th:if="${autor.descripcion != null}" th:utext="${autor.descripcion}" class="text-info small mb-3 fst-italic" style="font-size: 0.8rem; line-height: 1.2;"></p>
                         <div class="mt-auto d-flex justify-content-center gap-2">
                             <a th:href="@{/libros/listar(nombreAutor=${autor.nombre})}" class="btn btn-sm btn-outline-info rounded-pill flex-grow-1">
-                                <i class="fa-solid fa-book"></i> Libros
+                                <i class="fa-solid fa-book"></i> Ver Libros
                             </a>
                             <a th:href="'https://es.wikipedia.org/wiki/Special:Search?search=' + ${autor.nombreFormateado}" target="_blank" class="btn btn-sm btn-outline-light rounded-pill flex-grow-1">
                                 <i class="fa-brands fa-wikipedia-w"></i> Bio
@@ -138,6 +172,36 @@
             </div>
         </section>
 
+        <script>
+            function quitarAcentos(texto) {
+                return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            }
+
+            function filtrarAutoresEnTiempoReal(texto) {
+                const filtro = quitarAcentos(texto.toLowerCase());
+                const tarjetas = document.querySelectorAll('.tarjeta-autor-item');
+                let visibles = 0;
+                
+                tarjetas.forEach(tarjeta => {
+                    const nombres = tarjeta.getAttribute('data-nombres');
+                    if (nombres && quitarAcentos(nombres.toLowerCase()).includes(filtro)) {
+                        tarjeta.style.display = '';
+                        visibles++;
+                    } else {
+                        tarjeta.style.display = 'none';
+                    }
+                });
+                
+                const mensajeVacio = document.getElementById('mensajeSinResultadosJS');
+                if (mensajeVacio) {
+                    if (visibles === 0 && tarjetas.length > 0) {
+                        mensajeVacio.classList.remove('d-none');
+                    } else {
+                        mensajeVacio.classList.add('d-none');
+                    }
+                }
+            }
+        </script>
     </main>
 </body>
 </html>

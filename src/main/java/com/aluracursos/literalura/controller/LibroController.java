@@ -85,13 +85,63 @@ public class LibroController {
             } else if (filtros.tipoCategoria() != null) {
                 String categoria = filtros.tipoCategoria().name();
                 listadoLibros = libroService.listarLibroPorTema(categoria);
-                textoResultado = "Libros en categoría: " + filtros.tipoCategoria().getEnEspañol();
-                fraseMotivacional = "Sumérgete en las maravillas de este género literario.";
+                textoResultado = "Categoría: " + filtros.tipoCategoria().getEnEspañol();
+                
+                switch (filtros.tipoCategoria()) {
+                    case FANTASIA:
+                        fraseMotivacional = "Mundos mágicos, seres asombrosos y aventuras sin límites te esperan.";
+                        break;
+                    case FICCION:
+                        fraseMotivacional = "Viajes inolvidables a mundos donde la imaginación es la única regla.";
+                        break;
+                    case MISTERIO:
+                    case THRILLER:
+                        fraseMotivacional = "Suspenso, enigmas y secretos que te mantendrán al borde del asiento.";
+                        break;
+                    case ROMANCE:
+                        fraseMotivacional = "Historias que hacen latir el corazón y suspirar al alma.";
+                        break;
+                    case BIOGRAFIA:
+                    case AUTOBIOGRAFIA:
+                        fraseMotivacional = "Vidas extraordinarias que inspiran y dejan una huella imborrable.";
+                        break;
+                    case HISTORIA:
+                        fraseMotivacional = "Viaja en el tiempo y descubre los ecos vibrantes de nuestro pasado.";
+                        break;
+                    case CIENCIA:
+                    case TECNOLOGIA:
+                        fraseMotivacional = "Explorando los fascinantes límites del conocimiento y el universo.";
+                        break;
+                    default:
+                        fraseMotivacional = "Sumérgete en las maravillas de este fascinante género literario.";
+                }
             } else if (filtros.idioma() != null) {
                 String lenguaje = filtros.idioma().getLanguageName();
                 listadoLibros = libroService.listarLibroPorIdioma(lenguaje);
-                textoResultado = "Libros en idioma: " + lenguaje;
-                fraseMotivacional = "La literatura no conoce fronteras; viaja a través del idioma.";
+                textoResultado = "Idioma: " + lenguaje;
+                
+                switch (filtros.idioma()) {
+                    case ESPANOL:
+                        fraseMotivacional = "Disfruta de la riqueza y pasión de la literatura en español.";
+                        break;
+                    case INGLES:
+                        fraseMotivacional = "Explora los clásicos universales y mundos fascinantes en inglés.";
+                        break;
+                    case FRANCES:
+                        fraseMotivacional = "Déjate envolver por la elegancia y el encanto de las letras francesas.";
+                        break;
+                    case PORTUGUES:
+                        fraseMotivacional = "Siente la belleza y el alma vibrante de la literatura en portugués.";
+                        break;
+                    case ALEMAN:
+                        fraseMotivacional = "Descubre la profundidad y genialidad de los grandes pensadores en alemán.";
+                        break;
+                    case ITALIANO:
+                        fraseMotivacional = "Vive el arte, el romance y la historia a través de la literatura italiana.";
+                        break;
+                    default:
+                        fraseMotivacional = "La literatura no conoce fronteras; viaja a través de este idioma.";
+                }
             } else if (filtros.masPopulares() != null && !filtros.masPopulares().isEmpty()) {
                 listadoLibros = libroService.listar100LibrosMasDescargados();
                 textoResultado = "Top 100 Libros Más Populares";
@@ -117,7 +167,23 @@ public class LibroController {
                 textoResultado = "Libros con vibra: #" + filtros.vibra();
                 fraseMotivacional = "Explorando emociones y subgéneros únicos.";
             } else if (filtros.listarAutores() != null && !filtros.listarAutores().isEmpty()) {
-                listadoAutores = libroService.listarAutores();
+                List<com.aluracursos.literalura.model.Autor> autoresTemp = new ArrayList<>(libroService.listarAutores());
+                
+                if (filtros.nombreAutorFiltro() != null && !filtros.nombreAutorFiltro().isBlank()) {
+                    String filtro = quitarAcentos(filtros.nombreAutorFiltro());
+                    autoresTemp = autoresTemp.stream()
+                        .filter(a -> quitarAcentos(a.getNombre()).contains(filtro) || quitarAcentos(a.getNombreFormateado()).contains(filtro))
+                        .collect(Collectors.toList());
+                }
+                
+                if ("alfabetico".equals(filtros.ordenAutores())) {
+                    autoresTemp.sort(java.util.Comparator.comparing(a -> a.getNombreFormateado()));
+                } else {
+                    autoresTemp.sort((a, b) -> Integer.compare(b.getLibros().size(), a.getLibros().size()));
+                }
+                
+                listadoAutores = autoresTemp;
+                
                 buscandoLibros = false;
                 textoResultado = "Autores registrados en la plataforma";
                 fraseMotivacional = "Conoce a las mentes brillantes que dieron vida a estas historias.";
@@ -129,6 +195,16 @@ public class LibroController {
             } else {
                 // Default search if nothing is specified
                 isDefaultSearch = true;
+            }
+            
+            if (!isDefaultSearch) {
+                if (buscandoLibros && listadoLibros != null && filtros.librosEliminados() == null) {
+                    textoResultado += " (" + listadoLibros.size() + " resultados)";
+                } else if (!buscandoLibros && listadoAutores != null && !listadoAutores.isEmpty()) {
+                    textoResultado += " (" + listadoAutores.size() + " resultados)";
+                } else if (filtros.librosEliminados() != null && listaEliminados != null) {
+                    textoResultado += " (" + listaEliminados.size() + " resultados)";
+                }
             }
         } catch (Exception ex) {
             redirectAttrs.addFlashAttribute("error", "Error procesando la búsqueda");
@@ -234,5 +310,11 @@ public class LibroController {
             return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error al generar el resumen.");
         }
+    }
+
+    private String quitarAcentos(String texto) {
+        if (texto == null) return "";
+        return java.text.Normalizer.normalize(texto, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toLowerCase();
     }
 }

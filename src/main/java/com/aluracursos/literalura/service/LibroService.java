@@ -5,7 +5,6 @@ import com.aluracursos.literalura.enumerador.Lenguaje;
 import com.aluracursos.literalura.model.*;
 import com.aluracursos.literalura.repository.IAutorRepository;
 import com.aluracursos.literalura.repository.ILibroRepository;
-import jakarta.persistence.Cacheable;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,34 +59,22 @@ public class LibroService {
                 .collect(Collectors.toList());
         }
 
-        if (listaPorNombre.isEmpty()) {
-            serviceAsync.getDatosLibroPorNombre(nombreLibro);
-            listaPorNombre = libroRepo.findByTituloContainingIgnoreCaseAndEstadoTrue(nombreLibro);
-        }
-        serviceAsync.actualizarDatosLibrosPorNombre(nombreLibro);
+        boolean mostrarCartel = listaPorNombre.isEmpty();
+        serviceAsync.actualizarDatosLibrosPorNombre(nombreLibro, mostrarCartel);
         return listaPorNombre;
     }
 
     public List<Libro> listar100LibrosMasDescargados() {
-
         List<Libro> resultado = new ArrayList<>();
         List<Libro> libros = libroRepo.findAll();
-        if (libros.isEmpty()) {
-            serviceAsync.getDatosLibroMasDescargados();
+        boolean mostrarCartel = libros.isEmpty();
+        serviceAsync.actualizarDatosLibrosMasDescargados(mostrarCartel);
+        if (!libros.isEmpty()) {
             resultado = libros.stream()
                     .sorted(Comparator.comparing(Libro::getCantidadDescargas).reversed())
                     .limit(100)
                     .collect(Collectors.toList());
-        } else {
-            resultado = libros.stream()
-                    .sorted(Comparator.comparing(Libro::getCantidadDescargas).reversed())
-                    .limit(100)
-                    .collect(Collectors.toList());
-            if (resultado.isEmpty()) {
-                System.out.println("No se encontro ningun libro buscaremos en la api");
-            }
         }
-        serviceAsync.actualizarDatosLibrosMasDescargados();
         return resultado;
     }
     
@@ -96,20 +83,13 @@ public class LibroService {
 
         List<Libro> resultado = new ArrayList<>();
         List<Libro> libros = libroRepo.findAll();
-        if (libros.isEmpty()) {
-            serviceAsync.getDatos10LibroMasDescargados();
+        boolean mostrarCartel = libros.isEmpty();
+        serviceAsync.actualizarDatosLibrosMasDescargados(mostrarCartel);
+        if (!libros.isEmpty()) {
             resultado = libros.stream()
                     .sorted(Comparator.comparing(Libro::getCantidadDescargas).reversed())
                     .limit(10)
                     .collect(Collectors.toList());
-        } else {
-            resultado = libros.stream()
-                    .sorted(Comparator.comparing(Libro::getCantidadDescargas).reversed())
-                    .limit(10)
-                    .collect(Collectors.toList());
-            if (resultado.isEmpty()) {
-                System.out.println("No se encontro ningun libro buscaremos en la api");
-            }
         }
         return resultado;
     }
@@ -118,11 +98,8 @@ public class LibroService {
         categoria = Categoria.valueOf(tema.toUpperCase());
         List<Libro> listado = libroRepo.findByCategoriaAndEstadoTrue(categoria);
 
-        if (listado.isEmpty()) {
-            serviceAsync.getDatosLibroPorTema(tema);
-            listado = libroRepo.findByCategoriaAndEstadoTrue(categoria);
-        }
-        serviceAsync.actualizarDatosLibrosPorTema(tema);
+        boolean mostrarCartel = listado.isEmpty();
+        serviceAsync.actualizarDatosLibrosPorTema(tema, mostrarCartel);
         return listado;
     }
 
@@ -140,11 +117,8 @@ public class LibroService {
         String lenguajeCode = lenguajeEnum.getCode();
         List<Libro> libros = libroRepo.findAllByLenguajeAndEstadoTrue(lenguajeEnum);
 
-        if (libros.isEmpty()) {
-            serviceAsync.getDatosLibroPorLenguaje(lenguajeCode);
-            libros = libroRepo.findAllByLenguajeAndEstadoTrue(lenguajeEnum);
-        }
-        serviceAsync.actualizarDatosLibrosPorLenguaje(lenguajeCode);
+        boolean mostrarCartel = libros.isEmpty();
+        serviceAsync.actualizarDatosLibrosPorLenguaje(lenguajeCode, mostrarCartel);
         return libros;
     }
 
@@ -168,11 +142,8 @@ public class LibroService {
                 .collect(Collectors.toList());
         }
 
-        if (librosPorAutor.isEmpty()) {
-            serviceAsync.getDatosLibroPorNombre(autorIngresado);
-            librosPorAutor = libroRepo.findByNombreAutorContainingIgnoreCaseAndEstadoTrue(autorIngresado);
-        }
-        serviceAsync.actualizarDatosLibrosPorNombre(autorIngresado);
+        boolean mostrarCartel = librosPorAutor.isEmpty();
+        serviceAsync.actualizarDatosLibrosPorNombre(autorIngresado, mostrarCartel);
         return librosPorAutor;
     }
 
@@ -277,6 +248,17 @@ public class LibroService {
         if (busquedaPalabras.length == 1) {
             for (String palabra : palabras) {
                 if (calcularDistanciaLevenshtein(palabra, b) <= maxErroresPermitidos) return true;
+            }
+        } else {
+            // Si busca múltiples palabras, coincidir si alguna palabra significativa (>3 letras) coincide
+            for (String palabraBuscada : busquedaPalabras) {
+                if (palabraBuscada.length() > 3) {
+                    for (String palabraTitulo : palabras) {
+                        if (calcularDistanciaLevenshtein(palabraTitulo, palabraBuscada) <= 1) {
+                            return true;
+                        }
+                    }
+                }
             }
         }
         

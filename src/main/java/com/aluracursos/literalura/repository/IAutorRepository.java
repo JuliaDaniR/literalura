@@ -12,6 +12,11 @@ public interface IAutorRepository extends JpaRepository<Autor,Long> {
 
     Autor findByNombreAndAnioNacAndAnioMuerte(String nombre, Integer integer, Integer integer1);
     
+    List<Autor> findByNombreContainingIgnoreCase(String nombreAutor);
+    
+    // Método para encontrar autores sin descripción para procesarlos con IA
+    List<Autor> findTop10ByDescripcionIsNull();
+    
     @Query("SELECT a FROM Autor a")
     List<Autor> findTop22Autores(Pageable pageable);
 }

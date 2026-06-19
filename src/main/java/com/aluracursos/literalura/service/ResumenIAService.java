@@ -61,6 +61,35 @@ public class ResumenIAService {
         return respuesta.replace("#", "").replace(".", "").replace("\"", "").trim();
     }
 
+    public String obtenerDescripcionAutor(String nombreAutor) {
+        String prompt = "Actúa como un experto en literatura. Escribe una sola oración de máximo 15 palabras sobre el autor '" + nombreAutor + "'. Formato estricto: '🌍 [País de origen] - [Dato interesante o su obra principal]'. Usa la etiqueta HTML <b> para resaltar el nombre de su obra. NUNCA uses asteriscos ni markdown. Ejemplo: '🌍 Reino Unido - Novelista famosa por su obra maestra <b>Frankenstein</b>.'";
+        
+        String[] openRouterModels = openRouterModelsRaw.split(",");
+        String[] geminiModels = geminiModelsRaw.split(",");
+        
+        System.out.println("--- Generando Descripción con IA para: " + nombreAutor + " ---");
+
+        for (String modelo : openRouterModels) {
+            String respuesta = intentarConOpenRouter(prompt, modelo.trim());
+            if (respuesta != null && !respuesta.isEmpty()) {
+                return limpiarDescripcionAutor(respuesta);
+            }
+        }
+
+        for (String modelo : geminiModels) {
+            String respuesta = intentarConGemini(prompt, modelo.trim());
+            if (respuesta != null && !respuesta.isEmpty()) {
+                return limpiarDescripcionAutor(respuesta);
+            }
+        }
+
+        return null;
+    }
+
+    private String limpiarDescripcionAutor(String respuesta) {
+        return respuesta.replace("\"", "").replace("\n", " ").trim();
+    }
+
     public String chatearConBibliotecario(String mensajeUsuario) {
         String prompt = "Eres el Bibliotecario Mágico de Literalura, un experto amable en literatura clásica. " +
                 "El usuario dice: '" + mensajeUsuario + "'. " +
@@ -106,7 +135,13 @@ public class ResumenIAService {
     }
 
     public String obtenerResumen(String titulo, String autor) {
-        String prompt = "Actúa como un crítico literario experto. Escribe un resumen de máximo 2 párrafos sobre el libro '" + titulo + "' de " + autor + ". El tono debe ser interesante e invitar a leerlo.";
+        String prompt = "Actúa como un crítico literario mágico y experto. Escribe un resumen sobre el libro '" + titulo + "' de " + autor + ". " +
+                "IMPORTANTE: Tu respuesta DEBE estar formateada en HTML básico usando etiquetas <b> para negritas y <br><br> para separar los párrafos. NO uses asteriscos ni Markdown. " +
+                "Estructura tu respuesta en este orden exacto: " +
+                "1. Un párrafo corto e intrigante de introducción.<br><br>" +
+                "2. Una lista de 3 puntos clave o temas principales (usa emojis apropiados y etiquetas <br> al final de cada punto).<br><br>" +
+                "3. Un párrafo final invitando a leerlo. " +
+                "El tono debe ser amable, inspirador y mágico.";
         
         String[] openRouterModels = openRouterModelsRaw.split(",");
         String[] geminiModels = geminiModelsRaw.split(",");

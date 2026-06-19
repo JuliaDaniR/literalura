@@ -23,6 +23,9 @@ public class Autor {
 
     private Integer anioMuerte;
 
+    @Column(length = 255)
+    private String descripcion;
+
     @ManyToMany(mappedBy = "autores", fetch = FetchType.EAGER)
     @org.hibernate.annotations.Fetch(org.hibernate.annotations.FetchMode.SUBSELECT)
     private List<Libro> libros = new ArrayList<>();

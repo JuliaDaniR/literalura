@@ -3,6 +3,7 @@ package com.aluracursos.literalura.controller;
 import com.aluracursos.literalura.model.EstadoBusqueda;
 import com.aluracursos.literalura.model.Libro;
 import com.aluracursos.literalura.service.LibroServiceAsync;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -22,48 +23,43 @@ public class BusquedaController {
     }
 
     @GetMapping("/estadoBusqueda")
-    public ResponseEntity<EstadoBusqueda> obtenerEstadoBusqueda() {
-        boolean busquedaEnCurso = libroServiceAsync.isBusquedaEnCurso();
-        int cantidadResultados = libroServiceAsync.getCantidadResultados();
-        int cantidadResultadosParcial = libroServiceAsync.getCantidadResultadosParcial();
-        String tipoBusqueda = libroServiceAsync.getTipoBusqueda();
-        EstadoBusqueda estadoBusqueda = new EstadoBusqueda(busquedaEnCurso, cantidadResultados, cantidadResultadosParcial, tipoBusqueda);
-        return ResponseEntity.ok(estadoBusqueda);
+    public ResponseEntity<Collection<EstadoBusqueda>> obtenerEstadoBusqueda() {
+        return ResponseEntity.ok(libroServiceAsync.getBusquedasActivas());
     }
 
     @GetMapping("/resultadosBusquedaPorNombre")
     public ResponseEntity<List<Libro>> obtenerResultadosBusquedaPorNombre(@RequestParam String nombre) {
-        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorNombre(nombre);
+        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorNombre(nombre, true);
         return obtenerResultado(future);
     }
 
     @GetMapping("/resultadosBusquedaMasDescargados")
     public ResponseEntity<List<Libro>> obtenerResultadosBusquedaMasDescargados() {
-        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosMasDescargados();
+        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosMasDescargados(true);
         return obtenerResultado(future);
     }
 
     @GetMapping("/resultadosBusquedaPorLenguaje")
     public ResponseEntity<List<Libro>> obtenerResultadosBusquedaPorLenguaje(@RequestParam String lenguaje) {
-        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorLenguaje(lenguaje);
+        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorLenguaje(lenguaje, true);
         return obtenerResultado(future);
     }
 
     @GetMapping("/resultadosBusquedaPorPalabraClave")
     public ResponseEntity<List<Libro>> obtenerResultadosBusquedaPorPalabraClave(@RequestParam String palabraClave) {
-        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorPalabraClave(palabraClave);
+        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorPalabraClave(palabraClave, true);
         return obtenerResultado(future);
     }
 
     @GetMapping("/resultadosBusquedaPorTema")
     public ResponseEntity<List<Libro>> obtenerResultadosBusquedaPorTema(@RequestParam String categoria) {
-        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorTema(categoria);
+        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosLibrosPorTema(categoria, true);
         return obtenerResultado(future);
     }
 
     @GetMapping("/resultadosBusquedaAutoresVivosPorAnio")
     public ResponseEntity<List<Libro>> obtenerResultadosBusquedaAutoresVivosPorAnio(@RequestParam Integer anio) {
-        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosAutoresVivosPorAnio(anio);
+        CompletableFuture<List<Libro>> future = libroServiceAsync.actualizarDatosAutoresVivosPorAnio(anio, true);
         return obtenerResultado(future);
     }
 

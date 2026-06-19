@@ -1,8 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap');
 
 :root {
-    /* Paleta de Colores: Verde Oscuro / Dark Forest Moderno */
-    --bg-gradient: linear-gradient(135deg, #01120e 0%, #000000 100%); /* Negro absoluto a Verde muy oscuro */
+    /* Paleta de Colores: Verde Oscuro / Dark Forest Moderno con Brillo */
+    --bg-gradient: radial-gradient(circle at top right, rgba(5, 150, 105, 0.1) 0%, transparent 40%),
+                   radial-gradient(circle at bottom left, rgba(217, 119, 6, 0.05) 0%, transparent 40%),
+                   linear-gradient(135deg, #010a08 0%, #000000 100%);
     --glass-bg: rgba(255, 255, 255, 0.02);
     --glass-border: rgba(255, 255, 255, 0.04);
     --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5); /* Sombra más pronunciada */
@@ -19,6 +21,7 @@ body {
     margin: 0;
     font-family: 'Inter', sans-serif;
     background: var(--bg-gradient);
+    background-attachment: fixed;
     color: var(--text-primary);
     min-height: 100vh;
     display: flex;

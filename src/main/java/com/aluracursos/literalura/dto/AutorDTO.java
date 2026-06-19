@@ -7,7 +7,8 @@ public record AutorDTO(
         String nombre,
         Integer anioNac,
         Integer anioMuerte,
-        String nombreFormateado
+        String nombreFormateado,
+        String descripcion
 ) {
     public static AutorDTO fromEntity(Autor autor) {
         if (autor == null) return null;
@@ -16,7 +17,8 @@ public record AutorDTO(
                 autor.getNombre(),
                 autor.getAnioNac(),
                 autor.getAnioMuerte(),
-                autor.getNombreFormateado()
+                autor.getNombreFormateado(),
+                autor.getDescripcion()
         );
     }
 }

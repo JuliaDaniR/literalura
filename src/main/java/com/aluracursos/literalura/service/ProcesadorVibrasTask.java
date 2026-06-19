@@ -1,7 +1,9 @@
 package com.aluracursos.literalura.service;
 
 import com.aluracursos.literalura.model.Libro;
+import com.aluracursos.literalura.model.Autor;
 import com.aluracursos.literalura.repository.ILibroRepository;
+import com.aluracursos.literalura.repository.IAutorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,11 +16,13 @@ import java.util.List;
 public class ProcesadorVibrasTask {
 
     private final ILibroRepository libroRepo;
+    private final IAutorRepository autorRepo;
     private final ResumenIAService resumenIAService;
 
     @Autowired
-    public ProcesadorVibrasTask(ILibroRepository libroRepo, ResumenIAService resumenIAService) {
+    public ProcesadorVibrasTask(ILibroRepository libroRepo, IAutorRepository autorRepo, ResumenIAService resumenIAService) {
         this.libroRepo = libroRepo;
+        this.autorRepo = autorRepo;
         this.resumenIAService = resumenIAService;
     }
 
@@ -48,6 +52,20 @@ public class ProcesadorVibrasTask {
                     l.setVibras(nuevasVibras);
                     libroRepo.save(l);
                     System.out.println("[Trabajador Vibras] Asignadas a '" + l.getTitulo() + "': " + nuevasVibras);
+                }
+            }
+            
+            // 2. Buscamos 1 autor que no tenga descripción asignada
+            List<Autor> autoresSinDesc = autorRepo.findTop10ByDescripcionIsNull();
+            if (!autoresSinDesc.isEmpty()) {
+                Autor a = autoresSinDesc.get(0);
+                String desc = resumenIAService.obtenerDescripcionAutor(a.getNombre());
+                
+                if (desc != null && !desc.isBlank()) {
+                    if (desc.length() > 255) desc = desc.substring(0, 252) + "...";
+                    a.setDescripcion(desc);
+                    autorRepo.save(a);
+                    System.out.println("[Trabajador IA] Descripción de autor '" + a.getNombre() + "': " + desc);
                 }
             }
         } catch (Exception e) {

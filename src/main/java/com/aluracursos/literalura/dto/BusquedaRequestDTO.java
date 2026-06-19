@@ -16,6 +16,8 @@ public record BusquedaRequestDTO(
         String listarAutores,
         String nombreAutor,
         Integer anio,
-        String vibra
+        String vibra,
+        String nombreAutorFiltro,
+        String ordenAutores
 ) {
 }
