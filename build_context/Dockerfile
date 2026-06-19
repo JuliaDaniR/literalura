@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jdk-alpine
 
 COPY target/literalura-0.0.1-SNAPSHOT.jar literalura.jar
 
